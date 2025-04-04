@@ -23,12 +23,20 @@ export function Button({
     },
     "primary"
   );
+  const disabledColor = useThemeColor(
+    {
+      light: lightColor,
+      dark: darkColor,
+    },
+    "secondary"
+  );
 
   return (
     <Pressable
       style={({ pressed }) => [
         {
-          backgroundColor: color,
+          backgroundColor: props.disabled ? disabledColor : color,
+
           opacity: pressed ? 0.5 : 1,
         },
         styles.button,

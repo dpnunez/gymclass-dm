@@ -20,7 +20,7 @@ export function PageContainer({
 
   return (
     <ScrollView
-      style={[{ backgroundColor, margin: 12 }, style]}
+      style={[{ backgroundColor, padding: 12 }, style]}
       {...otherProps}
     />
   );

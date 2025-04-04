@@ -10,14 +10,14 @@ export default function UserLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "User Home",
+          title: "Início",
           headerShown: true,
         }}
       />
       <Tabs.Screen
         name="profile/index"
         options={{
-          title: "User Profile",
+          title: "Perfil",
           headerShown: true,
         }}
       />
