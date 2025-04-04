@@ -11,6 +11,8 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { View } from "@/components/PageContainer";
+import { Colors } from "@/constants/Colors";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,12 +32,17 @@ export default function RootLayout() {
     return null;
   }
 
+  const backgroundColor = Colors.light.background;
+
   return (
     <ThemeProvider value={DefaultTheme}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Drawer
           screenOptions={{
-            headerTitle: "Drawer navigation (only for mock phase)",
+            sceneStyle: {
+              backgroundColor,
+            },
+            headerTitle: "[DEV] Drawer navigation",
           }}
         >
           <Drawer.Screen name="(auth)/user" options={{ drawerLabel: "User" }} />
@@ -48,8 +55,16 @@ export default function RootLayout() {
             options={{ drawerLabel: "Manager" }}
           />
           <Drawer.Screen
-            name="(not-auth)/login/index"
-            options={{ drawerLabel: "Login" }}
+            name="(not-auth)"
+            options={{ drawerLabel: "Auth flow" }}
+          />
+          <Drawer.Screen
+            name="(not-auth)/register/index"
+            options={{ drawerLabel: "Register" }}
+          />
+          <Drawer.Screen
+            name="+not-found"
+            options={{ drawerLabel: "Not found" }}
           />
         </Drawer>
         <StatusBar style="auto" />
