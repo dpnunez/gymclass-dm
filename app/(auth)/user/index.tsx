@@ -7,6 +7,7 @@ import Icon from "@expo/vector-icons/AntDesign";
 import { useTheme } from "@react-navigation/native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Button } from "@/components/ThemedButton";
+import { useRouter } from "expo-router";
 
 export default function UserHome() {
   const secondaryBackground = useThemeColor({}, "secondary");
@@ -189,6 +190,8 @@ const AvaliableClassItem = ({
   const badgeColor = vacancies < 3 ? "#B91C1C" : "#047857";
   const badgeBgColor = vacancies < 3 ? "#FEE2E2" : "#D1FAE5";
 
+  const router = useRouter();
+
   return (
     <View style={stylesAvailableClassItem.container}>
       <View
@@ -218,14 +221,17 @@ const AvaliableClassItem = ({
       <View style={{ flexDirection: "row", gap: 24 }}>
         <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
           <Icon name="clockcircleo" size={16} color="#000" />
-          <Text>10:00 - 11:00</Text>
+          <Text>{time}</Text>
         </View>
         <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
           <Icon name="enviromento" size={16} color="#000" />
-          <Text>Sala 3</Text>
+          <Text>{room}</Text>
         </View>
       </View>
-      <Button disabled={vacancies === 0}>
+      <Button
+        disabled={vacancies === 0}
+        onPress={() => router.push(`/(auth)/user/classes/abc/confirm`)}
+      >
         {vacancies === 0 ? "Lotada" : "Inscrever-se"}
       </Button>
     </View>

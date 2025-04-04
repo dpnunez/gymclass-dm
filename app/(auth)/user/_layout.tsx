@@ -19,10 +19,23 @@ export default function UserLayout() {
         }}
       />
       <Tabs.Screen
+        name="classes"
+        options={{
+          tabBarIcon: ({ color }) => (
+            <Icon name="book" size={24} color={color} />
+          ),
+          title: "Aulas",
+          headerShown: true,
+        }}
+      />
+      <Tabs.Screen
         name="profile/index"
         options={{
           title: "Perfil",
           headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <Icon name="user" size={24} color={color} />
+          ),
         }}
       />
     </Tabs>
