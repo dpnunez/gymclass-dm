@@ -10,14 +10,12 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { Drawer } from "expo-router/drawer";
-
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -33,9 +31,29 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Drawer />
-      <StatusBar style="auto" />
+    <ThemeProvider value={DefaultTheme}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Drawer
+          screenOptions={{
+            headerTitle: "Drawer navigation (only for mock phase)",
+          }}
+        >
+          <Drawer.Screen name="(auth)/user" options={{ drawerLabel: "User" }} />
+          <Drawer.Screen
+            name="(auth)/admin/index"
+            options={{ drawerLabel: "Admin" }}
+          />
+          <Drawer.Screen
+            name="(auth)/manager/index"
+            options={{ drawerLabel: "Manager" }}
+          />
+          <Drawer.Screen
+            name="(not-auth)/login/index"
+            options={{ drawerLabel: "Login" }}
+          />
+        </Drawer>
+        <StatusBar style="auto" />
+      </GestureHandlerRootView>
     </ThemeProvider>
   );
 }
