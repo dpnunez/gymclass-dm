@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const router = useRouter();
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
       <PageContainer contentContainerStyle={styles.container}>
         <Text type="title">Registrar</Text>
         <TextInput label="Nome" placeholder="Nome" />

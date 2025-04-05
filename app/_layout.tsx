@@ -4,14 +4,12 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { View } from "@/components/PageContainer";
 import { Colors } from "@/constants/Colors";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -57,10 +55,6 @@ export default function RootLayout() {
           <Drawer.Screen
             name="(not-auth)"
             options={{ drawerLabel: "Auth flow" }}
-          />
-          <Drawer.Screen
-            name="(not-auth)/register/index"
-            options={{ drawerLabel: "Register" }}
           />
           <Drawer.Screen
             name="+not-found"

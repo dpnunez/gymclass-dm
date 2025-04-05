@@ -2,7 +2,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ThemedButton";
 import { Text } from "@/components/ThemedText";
 import { useGlobalSearchParams, useRouter } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import Icon from "@expo/vector-icons/AntDesign";
 
 const MOCK_DATA = {
@@ -17,12 +17,12 @@ const MOCK_DATA = {
   },
 };
 
-export default function ClassConfirmSubscribe() {
+export default function ClassSubscribedDetails() {
   const { classId } = useGlobalSearchParams();
   const router = useRouter();
 
-  const handleNavigateToClassSubscription = () => {
-    router.replace("/(auth)/user/classes");
+  const handleCancelate = () => {
+    router.back();
   };
 
   return (
@@ -47,12 +47,25 @@ export default function ClassConfirmSubscribe() {
           <Text>{MOCK_DATA.class.location}</Text>
         </View>
       </View>
-      <View style={{ marginBottom: 20, gap: 10 }}>
-        <Text style={{ textAlign: "center", marginTop: 20 }}>
-          Você deseja se inscrever nesta aula?
+
+      <View style={{ gap: 10 }}>
+        <View style={[styles.itemWithIcon, { justifyContent: "center" }]}>
+          <Icon name="checkcircle" size={24} color="#4CAF50" />
+          <Text style={{ color: "#4CAF50" }}>Inscrito com sucesso!</Text>
+        </View>
+        <Image
+          source={{
+            uri: "https://www.shutterstock.com/shutterstock/photos/2429446241/display_1500/stock-vector-qr-code-isolated-on-white-background-2429446241.jpg",
+          }}
+          style={{ width: 200, height: 200, alignSelf: "center" }}
+        />
+        <Text style={{ textAlign: "center" }}>
+          Apresente este QR Code na entrada da sala para confirmar sua presença.
         </Text>
-        <Button size="large" onPress={handleNavigateToClassSubscription}>
-          Confirmar Inscrição
+      </View>
+      <View style={{ marginBottom: 20, gap: 10 }}>
+        <Button size="large" onPress={handleCancelate} lightColor="#EF4444">
+          Cancelar Inscrição
         </Button>
       </View>
     </PageContainer>
