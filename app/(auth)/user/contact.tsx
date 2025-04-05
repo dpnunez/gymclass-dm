@@ -5,6 +5,7 @@ import { StyleSheet, View } from "react-native";
 import Icon from "@expo/vector-icons/AntDesign";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ComponentProps } from "react";
+import MapView from "react-native-maps";
 
 function ContactCard({
   iconName,
@@ -46,6 +47,15 @@ export default function Contact() {
           title="Email"
           description="gym.class@gmail.com"
         />
+        <MapView
+          region={{
+            latitude: 41.805,
+            longitude: -6.759,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+          style={styles.map}
+        />
       </View>
     </PageContainer>
   );
@@ -56,5 +66,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 24,
+  },
+  map: {
+    width: "100%",
+    aspectRatio: 1,
+    borderRadius: 10,
+    marginBottom: 20,
   },
 });
