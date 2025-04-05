@@ -11,21 +11,22 @@ export default function UserLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Suas Aulas",
+          title: "Perfil",
+          headerShown: true,
+        }}
+      />
+
+      <Stack.Screen
+        name="edit/index"
+        options={{
+          title: "Editar Perfil",
           headerShown: true,
         }}
       />
       <Stack.Screen
-        name="[classId]/index"
+        name="subscription/index"
         options={{
-          title: "Detalhes da Aula",
-          headerShown: true,
-        }}
-      />
-      <Stack.Screen
-        name="[classId]/confirm/index"
-        options={{
-          title: "Inscrever-se",
+          title: "Inscrição",
           headerShown: true,
         }}
       />

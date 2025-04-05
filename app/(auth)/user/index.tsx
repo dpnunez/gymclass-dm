@@ -8,6 +8,7 @@ import { useTheme } from "@react-navigation/native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Button } from "@/components/ThemedButton";
 import { useRouter } from "expo-router";
+import { Badge } from "@/components/Badge";
 
 export default function UserHome() {
   const secondaryBackground = useThemeColor({}, "secondary");
@@ -205,18 +206,11 @@ const AvaliableClassItem = ({
           <Text style={stylesAvailableClassItem.title}>{title}</Text>
           <Text>{professor}</Text>
         </View>
-        <View
-          style={{
-            borderRadius: 999,
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            backgroundColor: badgeBgColor,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Text lightColor={badgeColor}>{vacancies} vagas</Text>
-        </View>
+        <Badge
+          text={`${vacancies} vagas`}
+          color={badgeColor}
+          backgroundColor={badgeBgColor}
+        />
       </View>
       <View style={{ flexDirection: "row", gap: 24 }}>
         <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>

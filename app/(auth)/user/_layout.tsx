@@ -6,6 +6,7 @@ export default function UserLayout() {
     <Tabs
       screenOptions={{
         animation: "shift",
+        headerShown: false,
       }}
     >
       <Tabs.Screen
@@ -24,15 +25,23 @@ export default function UserLayout() {
           tabBarIcon: ({ color }) => (
             <Icon name="book" size={24} color={color} />
           ),
-          title: "Aulas",
+        }}
+      />
+
+      <Tabs.Screen
+        name="contact"
+        options={{
+          title: "Contato",
           headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <Icon name="phone" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="profile/index"
+        name="profile"
         options={{
           title: "Perfil",
-          headerShown: true,
           tabBarIcon: ({ color }) => (
             <Icon name="user" size={24} color={color} />
           ),
