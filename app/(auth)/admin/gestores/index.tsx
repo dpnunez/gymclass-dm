@@ -1,12 +1,13 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
+import { Button } from "@/components/ThemedButton";
+import { GestorStatus, GestorItemProps } from "@/types/ManagerTypes";
 import { Image, StyleSheet, View, Alert, TextInput } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { useState } from "react";
 import { Menu, IconButton, Snackbar } from "react-native-paper";
 import Icon from "@expo/vector-icons/AntDesign";
-import { Button } from "@/components/ThemedButton";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 const MOCK_DATA: GestorItemProps[] = [
     {
@@ -15,6 +16,7 @@ const MOCK_DATA: GestorItemProps[] = [
         email: "pedror98@gmail.com",
         birthdate: "01/01/1988",
         registration: "Jan 2019",
+        status: "ativo",
     },
     {
         id: "2",
@@ -22,10 +24,24 @@ const MOCK_DATA: GestorItemProps[] = [
         email: "renato.goes@gmail.com",
         birthdate: "22/04/1996",
         registration: "Mar 2025",
+        status: "convidado",
     },
 ];
 
 export default function AdminManagersPage() {
+    const params = useLocalSearchParams();
+    if (params.id) {
+        const newGestor: GestorItemProps = {
+            id: params.id.toString(),
+            name: params.name.toString(),
+            email: params.email.toString(),
+            birthdate: params.birthdate.toString(),
+            registration: params.registration.toString(),
+            status: params.status.toString() as GestorStatus,
+        }
+        MOCK_DATA.push(newGestor);
+    }
+
     const [data, setData] = useState(MOCK_DATA);
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -37,9 +53,9 @@ export default function AdminManagersPage() {
 
     return (
         <PageContainer as={View}>
-            <View style={{alignSelf: "flex-end"}}>
+            <View style={{ alignSelf: "flex-end" }}>
                 <Button size="small" style={stylesItem.button} onPress={() => router.push(`/(auth)/admin/gestores/novo`)}>
-                    <Text style={{ color: "#fff" }}><Icon name="plus" size={12} color="#fff" /> Novo Gestor</Text>
+                    <Text lightColor="#fff"><Icon name="plus" size={12} color="#fff" /> Novo Gestor</Text>
                 </Button>
             </View>
 
@@ -59,6 +75,7 @@ export default function AdminManagersPage() {
                         email={item.email}
                         birthdate={item.birthdate}
                         registration={item.registration}
+                        status={item.status}
                         setData={setData}
                         showSnackbar={(message: string) => {
                             setSnackbarMessage(message);
@@ -84,14 +101,6 @@ export default function AdminManagersPage() {
     );
 }
 
-interface GestorItemProps {
-    id: string;
-    name: string;
-    email: string;
-    birthdate: string;
-    registration: string;
-}
-
 interface GestorItemFullProps extends GestorItemProps {
     setData: React.Dispatch<React.SetStateAction<GestorItemProps[]>>;
     showSnackbar: (message: string) => void;
@@ -105,7 +114,20 @@ interface MenuGestorProps {
 }
 
 
-function GestorItem({ name, email, birthdate, registration, id, setData, showSnackbar }: GestorItemFullProps) {
+function GestorItem({ name, email, birthdate, registration, status, id, setData, showSnackbar }: GestorItemFullProps) {
+    const colors = {
+        ativo: "#D1FAE5",
+        convidado: "#FFC067",
+    };
+    const colors2 = {
+        ativo: "#047857",
+        convidado: "#C77400",
+    };
+    const statusLabel = {
+        ativo: "Ativo",
+        convidado: "Convidado",
+    } as const;
+
     return (
         <View style={stylesItem.container}>
             <GestorMenu name={name} id={id} setData={setData} showSnackbar={showSnackbar} />
@@ -124,8 +146,8 @@ function GestorItem({ name, email, birthdate, registration, id, setData, showSna
                 </View>
             </View>
             <View style={stylesItem.bottomSection}>
-                <View style={{ backgroundColor: "#D1FAE5", ...stylesItem.detailSection }}>
-                    <Text lightColor="#047857">Ativo</Text>
+                <View style={{ backgroundColor: colors[status], ...stylesItem.detailSection }}>
+                    <Text lightColor={colors2[status]}>{statusLabel[status]}</Text>
                 </View>
                 <View style={stylesItem.detailSection}>
                     <Text>{`Registo: ${registration}`}</Text>

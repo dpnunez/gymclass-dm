@@ -18,7 +18,7 @@ export default function AdminLayout() {
       <Stack.Screen
         name="novo"
         options={{
-          title: "Novo Gestor",
+          title: "Convidar Novo Gestor",
           headerShown: true,
         }}
       />
