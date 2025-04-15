@@ -11,6 +11,7 @@ import "react-native-reanimated";
 import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Colors } from "@/constants/Colors";
+import { PaperProvider } from "react-native-paper";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -34,35 +35,37 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={DefaultTheme}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Drawer
-          screenOptions={{
-            sceneStyle: {
-              backgroundColor,
-            },
-            headerTitle: "[DEV] Drawer navigation",
-          }}
-        >
-          <Drawer.Screen name="(auth)/user" options={{ drawerLabel: "User" }} />
-          <Drawer.Screen
-            name="(auth)/admin/index"
-            options={{ drawerLabel: "Admin" }}
-          />
-          <Drawer.Screen
-            name="(auth)/manager/index"
-            options={{ drawerLabel: "Manager" }}
-          />
-          <Drawer.Screen
-            name="(not-auth)"
-            options={{ drawerLabel: "Auth flow" }}
-          />
-          <Drawer.Screen
-            name="+not-found"
-            options={{ drawerLabel: "Not found" }}
-          />
-        </Drawer>
-        <StatusBar style="auto" />
-      </GestureHandlerRootView>
+      <PaperProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Drawer
+            screenOptions={{
+              sceneStyle: {
+                backgroundColor,
+              },
+              headerTitle: "[DEV] Drawer navigation",
+            }}
+          >
+            <Drawer.Screen name="(auth)/user" options={{ drawerLabel: "User" }} />
+            <Drawer.Screen
+              name="(auth)/admin"
+              options={{ drawerLabel: "Admin" }}
+            />
+            <Drawer.Screen
+              name="(auth)/manager/index"
+              options={{ drawerLabel: "Manager" }}
+            />
+            <Drawer.Screen
+              name="(not-auth)"
+              options={{ drawerLabel: "Auth flow" }}
+            />
+            <Drawer.Screen
+              name="+not-found"
+              options={{ drawerLabel: "Not found" }}
+            />
+          </Drawer>
+          <StatusBar style="auto" />
+        </GestureHandlerRootView>
+      </PaperProvider>
     </ThemeProvider>
   );
 }
