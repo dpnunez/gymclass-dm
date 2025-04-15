@@ -22,11 +22,10 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="gestores"
         options={{
-          title: "Gestores",
-          headerShown: true,
           tabBarIcon: ({ color }) => (
             <Icon name="user" size={24} color={color} />
           ),
+          title: "Gestores"
         }}
       />
       <Tabs.Screen
