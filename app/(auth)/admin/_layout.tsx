@@ -31,7 +31,7 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="configuracoes"
         options={{
-          title: "Configuracoes",
+          title: "Configurações",
           headerShown: true,
           tabBarIcon: ({ color }) => (
             <Icon name="setting" size={24} color={color} />

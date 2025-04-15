@@ -94,6 +94,7 @@ export default function AdminManagersPage() {
                 visible={snackbarVisible}
                 onDismiss={() => setSnackbarVisible(false)}
                 duration={3000}
+                style={stylesItem.snackbar}
             >
                 {snackbarMessage}
             </Snackbar>
@@ -253,6 +254,11 @@ const stylesItem = StyleSheet.create({
         alignItems: "center",
         marginBottom: 15,
         padding: 7,
+    },
+    snackbar: {
+        position: "absolute",
+        bottom: 20,
+        alignSelf: "center",
     },
 });
 
