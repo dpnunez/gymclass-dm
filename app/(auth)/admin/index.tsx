@@ -1,6 +1,6 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
-import { Image, StyleSheet, View, Alert } from "react-native";
+import { Image, StyleSheet, View, Alert, TextInput } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { useState } from "react";
 import { Menu, IconButton, Snackbar } from "react-native-paper";
@@ -39,10 +39,18 @@ export default function AdminUsersPage() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const filteredData = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
   return (
     <PageContainer as={View}>
+      <TextInput
+        placeholder="Pesquisar por nome..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        style={stylesItem.searchInput} />
       <FlatList
-        data={data}
+        data={filteredData}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <AtletaItem
@@ -241,5 +249,11 @@ const stylesItem = StyleSheet.create({
     top: 5,
     right: 5,
   },
+  searchInput: {
+    backgroundColor: "#f1f1f1",
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 16,
+  }
 });
 
