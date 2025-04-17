@@ -11,7 +11,7 @@ import "react-native-reanimated";
 import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
-import { ThemeProvider } from "@/context/ThemeContext";
+import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { ColorValue } from "react-native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -33,7 +33,7 @@ function DrawerNavigator({ backgroundColor }: { backgroundColor: ColorValue | un
         options={{ drawerLabel: "Admin" }}
       />
       <Drawer.Screen
-        name="(auth)/manager/index"
+        name="(auth)/manager"
         options={{ drawerLabel: "Manager" }}
       />
       <Drawer.Screen
@@ -49,7 +49,7 @@ function DrawerNavigator({ backgroundColor }: { backgroundColor: ColorValue | un
 }
 
 function AppContent() {
-  const { theme } = require("@/context/ThemeContext").useTheme();
+  const { theme } = useTheme();
   const backgroundColor = theme.colors.background;
 
   return (

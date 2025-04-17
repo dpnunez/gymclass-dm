@@ -36,4 +36,7 @@ export const updateColorsConstant = (primaryColor: string) => {
   Colors.light.primary = primaryColor;
   Colors.light.tint = primaryColor;
   Colors.light.tabIconSelected = primaryColor;
+  Colors.dark.primary = primaryColor;
+  Colors.dark.tint = primaryColor;
+  Colors.dark.tabIconSelected = primaryColor;
 }
