@@ -5,7 +5,7 @@ import { TextInput } from "@/components/ThemedTextInput";
 import { useState } from "react";
 import { StyleSheet, View, Alert } from "react-native";
 import { Router, useRouter } from "expo-router";
-import { GestorItemProps } from "@/types/ManagerTypes";
+import { GestorItemProps } from "@/types/AdminTypes";
 
 let nextId = 3;
 

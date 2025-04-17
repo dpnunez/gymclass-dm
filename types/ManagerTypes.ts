@@ -1,9 +1,16 @@
-export type GestorStatus = "ativo" | "convidado";
-export interface GestorItemProps {
-    id: string;
-    name: string;
-    email: string;
-    birthdate: string;
-    registration: string;
-    status: GestorStatus;
+export interface GestorClassProps {
+  id: string;
+  name: string;
+  prof: string;
+  startingDate: Date;
+  minuteLength: number;
+  vagas: number;
+  inscritos: number;
 }
+
+export interface GestorPagProps {
+  id: string;
+  name: string;
+  vencimento: Date;
+}
+

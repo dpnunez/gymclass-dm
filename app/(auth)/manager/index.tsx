@@ -6,6 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 import Icon from "@expo/vector-icons/AntDesign";
 import { useState } from "react";
 import { useRouter } from "expo-router";
+import { GestorClassProps, GestorPagProps } from "@/types/ManagerTypes";
 
 const MOCK_DATA_CLASS: GestorClassProps[] = [
   {
@@ -74,7 +75,14 @@ export default function ManagerHome() {
   const { theme } = useTheme();
 
   const [classData, setClassData] = useState(MOCK_DATA_CLASS);
+  const nextClasses = classData
+    .filter((item) => refDate < item.startingDate)
+    .slice(0, 2);
+
   const [paymentData, setPaymentData] = useState(MOCK_DATA_PAG);
+  const nextPags = [...paymentData]
+    .sort((a, b) => a.vencimento.getTime() - b.vencimento.getTime())
+    .slice(0, 2);
 
   const router = useRouter();
 
@@ -83,42 +91,49 @@ export default function ManagerHome() {
       <View style={{ width: "95%", alignSelf: "center" }}>
         <InfoBox
           colorPrimary={theme.colors.primary}
-          classData={classData}
-          paymentData={paymentData} />
+          numberClasses={paymentData.length}
+          numberMembers={classData.length} />
         <View style={{ marginTop: 40 }}>
-          <View style={{ position: "relative" }}>
+          <View style={stylesItem.headerTitle}>
             <Text type="subtitle">Próximas Aulas</Text>
             <Pressable
-              style={{ position: "absolute", right: 0, top: 2 }}
               onPress={() => router.push("/(auth)/manager/classes")}
             >
               <Text lightColor={theme.colors.primary}>Ver Todas</Text>
             </Pressable>
           </View>
-          <ProximasAulas classData={classData} />
+          <View style={stylesItem.container}>
+            {nextClasses.map((item) => (
+              <NextClassItem 
+              key={item.id} id={item.id} name={item.name}
+              prof={item.prof} startingDate={item.startingDate}
+              minuteLength={item.minuteLength} vagas={item.vagas}
+              inscritos={item.inscritos} />))}
+          </View>
         </View>
 
         <View style={{ marginVertical: 40 }}>
-          <View style={{ position: "relative" }}>
+          <View style={stylesItem.headerTitle}>
             <Text type="subtitle">Pagamentos Pendentes</Text>
             <Pressable
-              style={{ position: "absolute", right: 0, top: 2 }}
               onPress={() => router.push("/(auth)/manager/members")}
             >
               <Text lightColor={theme.colors.primary}>Ver Todos</Text>
             </Pressable>
           </View>
-          <PagamentosPendentes paymentData={paymentData} />
+          <View style={stylesItem.container}>
+            {nextPags.map((item) => (
+              <PagamentosPendentes 
+              key={item.id} id={item.id} name={item.name}
+              vencimento={item.vencimento} />))}
+          </View>
         </View>
       </View>
     </PageContainer>
   );
 }
 
-function ProximasAulas({ classData }: { classData: GestorClassProps[] }) {
-  const nextClasses = classData
-    .filter((item) => refDate < item.startingDate)
-    .slice(0, 2);
+function NextClassItem({ id, name, prof, startingDate, minuteLength, vagas, inscritos }: GestorClassProps) {
 
   const toTimeString = (date: Date, extraMin: number = 0) => {
     const temp = new Date(date);
@@ -131,47 +146,37 @@ function ProximasAulas({ classData }: { classData: GestorClassProps[] }) {
   };
 
   return (
-    <View style={{ marginTop: 24, gap: 20 }}>
-      {nextClasses.map((item) => (
-        <View key={item.id} style={stylesItem.itemBox}>
-          <Text type="subtitle">{item.name}</Text>
-          <Text>{item.prof}</Text>
-          <Text>
-            {toTimeString(item.startingDate) +
-              " - " +
-              toTimeString(item.startingDate, item.minuteLength)}
-          </Text>
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            <View style={{ flexDirection: "row" }}>
-              <Image
-                style={stylesItem.imageClass}
-                source={{
-                  uri: "https://reactnative.dev/img/tiny_logo.png",
-                }}
-              />
-              <Image
-                style={stylesItem.imageClass}
-                source={{
-                  uri: "https://reactnative.dev/img/tiny_logo.png",
-                }}
-              />
-            </View>
-            <Text>{item.inscritos} alunos</Text>
-          </View>
+    <View style={stylesItem.itemBox}>
+      <Text type="subtitle">{name}</Text>
+      <Text>{prof}</Text>
+      <Text>
+        {toTimeString(startingDate) +
+          " - " +
+          toTimeString(startingDate, minuteLength)}
+      </Text>
+      <View style={{ flexDirection: "row", gap: 10 }}>
+        <View style={{ flexDirection: "row" }}>
+          <Image
+            style={stylesItem.imageClass}
+            source={{
+              uri: "https://reactnative.dev/img/tiny_logo.png",
+            }}
+          />
+          <Image
+            style={stylesItem.imageClass}
+            source={{
+              uri: "https://reactnative.dev/img/tiny_logo.png",
+            }}
+          />
         </View>
-      ))}
+        <Text>{inscritos} alunos</Text>
+      </View>
     </View>
+
   );
 }
 
-function PagamentosPendentes({
-  paymentData,
-}: {
-  paymentData: GestorPagProps[];
-}) {
-  const nextPags = [...paymentData]
-    .sort((a, b) => a.vencimento.getTime() - b.vencimento.getTime())
-    .slice(0, 2);
+function PagamentosPendentes({ id, name, vencimento }: GestorPagProps) {
 
   const daysBetween = (a: Date, b: Date) => {
     const msPerDay = 1000 * 60 * 60 * 24;
@@ -179,48 +184,46 @@ function PagamentosPendentes({
   };
 
   return (
-    <View style={{ marginTop: 24, gap: 20 }}>
-      {nextPags.map((item) => (
-        <View
-          key={item.id}
-          style={[stylesItem.itemBox, { flexDirection: "row", gap: 15 }]}
-        >
-          <Image
-            style={stylesItem.imagePayment}
-            source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
-          />
-          <View>
-            <Text style={{ fontSize: 15 }} type="subtitle">
-              {item.name}
-            </Text>
-            {refDate < item.vencimento ? (
-              <Text
-                style={{ fontSize: 13 }}
-              >{`Vence em ${item.vencimento.toLocaleDateString("en-GB")}`}</Text>
-            ) : (
-              <Text
-                lightColor="#EF4444"
-                style={{ fontSize: 13 }}
-              >{`Atrasado ${daysBetween(refDate, item.vencimento)} dias`}</Text>
-            )}
-          </View>
-        </View>
-      ))}
+
+    <View
+      key={id}
+      style={[stylesItem.itemBox, { flexDirection: "row", gap: 15 }]}
+    >
+      <Image
+        style={stylesItem.imagePayment}
+        source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
+      />
+      <View>
+        <Text style={{ fontSize: 15 }} type="subtitle">
+          {name}
+        </Text>
+        {refDate < vencimento ? (
+          <Text
+            style={{ fontSize: 13 }}
+          >{`Vence em ${vencimento.toLocaleDateString("en-GB")}`}</Text>
+        ) : (
+          <Text
+            lightColor="#EF4444"
+            style={{ fontSize: 13 }}
+          >{`Atrasado ${daysBetween(refDate, vencimento)} dias`}</Text>
+        )}
+      </View>
     </View>
+
   );
 }
 
-function InfoBox({ colorPrimary, classData, paymentData }:
+function InfoBox({ colorPrimary, numberClasses, numberMembers }:
   {
-    colorPrimary: string, classData: GestorClassProps[],
-    paymentData: GestorPagProps[]
+    colorPrimary: string, numberClasses: number,
+    numberMembers: number 
   }) {
   return (
     <View style={stylesItem.infoContainer}>
       <View style={stylesItem.infoBox}>
         <View style={{ marginLeft: 20 }}>
           <Text>Aulas Hoje</Text>
-          <Text type="subtitle">{classData.length}</Text>
+          <Text type="subtitle">{numberClasses}</Text>
         </View>
         <Icon
           name="calendar"
@@ -232,7 +235,7 @@ function InfoBox({ colorPrimary, classData, paymentData }:
       <View style={stylesItem.infoBox}>
         <View style={{ marginLeft: 20 }}>
           <Text>Alunos Ativos</Text>
-          <Text type="subtitle">{paymentData.length}</Text>
+          <Text type="subtitle">{numberMembers}</Text>
         </View>
         <Icon
           name="team"
@@ -245,22 +248,6 @@ function InfoBox({ colorPrimary, classData, paymentData }:
   );
 }
 
-interface GestorClassProps {
-  id: string;
-  name: string;
-  prof: string;
-  startingDate: Date;
-  minuteLength: number;
-  vagas: number;
-  inscritos: number;
-}
-
-interface GestorPagProps {
-  id: string;
-  name: string;
-  vencimento: Date;
-}
-
 const stylesItem = StyleSheet.create({
   infoContainer: {
     flexDirection: "row",
@@ -269,19 +256,16 @@ const stylesItem = StyleSheet.create({
     marginTop: 20,
   },
   infoBox: {
-    borderColor: "#727272",
-    borderWidth: 1,
-    borderStyle: "solid",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     borderRadius: 8,
     paddingVertical: 14,
     width: "50%",
     flexDirection: "row",
     position: "relative",
+    justifyContent: "space-between",
   },
   boxIcon: {
-    position: "absolute",
-    right: 15,
-    top: 15,
+    marginRight: 15,
   },
   imageClass: {
     width: 16,
@@ -295,11 +279,17 @@ const stylesItem = StyleSheet.create({
     borderRadius: 25,
   },
   itemBox: {
-    borderColor: "#727272",
-    borderWidth: 1,
-    borderStyle: "solid",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
+  headerTitle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  container: {
+    marginTop: 24,
+    gap: 20,
+  }
 });

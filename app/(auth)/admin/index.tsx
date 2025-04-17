@@ -215,9 +215,7 @@ const stylesItem = StyleSheet.create({
   container: {
     backgroundColor: "#FFFFFF",
     borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
-    borderStyle: "solid",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     padding: 8,
     position: "relative",
   },

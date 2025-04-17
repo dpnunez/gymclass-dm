@@ -1,7 +1,7 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
 import { Button } from "@/components/ThemedButton";
-import { GestorStatus, GestorItemProps } from "@/types/ManagerTypes";
+import { GestorStatus, GestorItemProps } from "@/types/AdminTypes";
 import { Image, StyleSheet, View, Alert, TextInput } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import { useState } from "react";
@@ -158,7 +158,7 @@ function GestorItem({ name, email, birthdate, registration, status, id, setData,
     );
 }
 
-type ActionType = "validar" | "remover";
+type ActionType = "remover";
 
 function GestorMenu({ name, id, setData, showSnackbar }: MenuGestorProps) {
     const [visible, setVisible] = useState(false);
@@ -206,11 +206,8 @@ function GestorMenu({ name, id, setData, showSnackbar }: MenuGestorProps) {
 
 const stylesItem = StyleSheet.create({
     container: {
-        backgroundColor: "#FFFFFF",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         borderRadius: 10,
-        borderWidth: 2,
-        borderColor: "#E5E7EB",
-        borderStyle: "solid",
         padding: 8,
         position: "relative",
     },
