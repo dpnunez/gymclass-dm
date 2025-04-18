@@ -50,7 +50,7 @@ const dateButtonStyles = StyleSheet.create({
   dateButton: {
     borderRadius: 10,
     padding: 10,
-    width: "20%",
+    minWidth: 70,
     alignItems: "center",
     justifyContent: "center",
   },

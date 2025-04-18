@@ -3,7 +3,7 @@ import { Text } from "@/components/ThemedText";
 import { Button } from "@/components/ThemedButton";
 import { TextInput } from "@/components/ThemedTextInput";
 import { useState } from "react";
-import { StyleSheet, View, Alert } from "react-native";
+import { StyleSheet, View, ScrollView, Alert } from "react-native";
 import { Router, useRouter } from "expo-router";
 import { GestorItemProps } from "@/types/AdminTypes";
 
@@ -23,7 +23,7 @@ export default function NewManager() {
   const router = useRouter();
 
   return (
-    <PageContainer as={View}>
+    <PageContainer as={ScrollView}>
       <View style={stylesItem.container}>
         <TextInput
           placeholder="Digite o nome..."

@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-export default function ManagerHome() {
+export default function ManagerProfile() {
   return (
     <View>
       <Text>Manager Profile</Text>

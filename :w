@@ -85,12 +85,6 @@ function DateTimeInput({startingDate, setStartingDate}: DateTimeInputProps) {
   const [show, setShow] = useState(false);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  type AndroidMode = "date" | "time";
-
-  const showMode = (mode: string) => {
-    setShow(true);
-    setMode(mode);
-  };
   
   const onChange = (event: DateTimePickerEvent, selectedDate: Date | undefined) => {
     const currentDate = selectedDate;
@@ -105,6 +99,11 @@ function DateTimeInput({startingDate, setStartingDate}: DateTimeInputProps) {
     setDate(dateString!);
     setTime(timeString!);
   };
+  const showMode = (currentMode: string) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+  type AndroidMode = "date" | "time";
 
   return (
     <>
@@ -146,7 +145,7 @@ function DateTimeInput({startingDate, setStartingDate}: DateTimeInputProps) {
 
 interface DateTimeInputProps {
   startingDate: Date;
-  setStartingDate: (date: Date) => void;
+  setStartingDate: (startingDate: Date) => void;
 }
 
 function dataConfirmationHandler(data: GestorClassCreateProps, router: Router) {

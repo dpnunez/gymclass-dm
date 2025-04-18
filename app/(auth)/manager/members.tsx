@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-export default function ManagerHome() {
+export default function ManagerMembers() {
   return (
     <View>
       <Text>Manager Members</Text>
