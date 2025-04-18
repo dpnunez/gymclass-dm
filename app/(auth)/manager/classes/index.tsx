@@ -347,7 +347,7 @@ function DateButtons({ data, currentDate, setCurrentDate }: DateButtonsProps) {
       showsHorizontalScrollIndicator
     >
       {uniqueDays.map((date: Date) => (
-        <TouchableOpacity key={date.getDate()}
+        <TouchableOpacity key={date.toString()}
           onPress={() => setCurrentDate(date)}>
           <DateDayButton monthDay={date.getDate()}
             weekDay={weekDays[date.getDay()]}
