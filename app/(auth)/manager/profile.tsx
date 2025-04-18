@@ -7,32 +7,14 @@ import { ComponentProps } from "react";
 import { useRouter } from "expo-router";
 
 const MOCK_USER = {
-  name: "Edson Arantes do Nascimento",
-  email: "edson.arantes@gmail.com",
+  name: "Ayrton Senna da Silva",
+  email: "ayrton.senna@gmail.com",
 };
 
-export default function UserProfile() {
+export default function ManagerProfile() {
   const router = useRouter();
 
   const actions = [
-    {
-      title: "Editar Perfil",
-      icon: {
-        name: "edit",
-        color: "#3B82F6",
-        backgroundColor: "#DBEAFE",
-      },
-      onPress: () => router.push("/(auth)/user/profile/edit"),
-    },
-    {
-      title: "Inscrição",
-      icon: {
-        name: "creditcard",
-        color: "#8B5CF6",
-        backgroundColor: "#EDE9FE",
-      },
-      onPress: () => router.push("/(auth)/user/profile/subscription"),
-    },
     {
       title: "Desconectar",
       icon: {
@@ -48,7 +30,7 @@ export default function UserProfile() {
     <PageContainer as={View}>
       <Image
         source={{
-          uri: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Pele_con_brasil_%28cropped%29.jpg",
+          uri: "https://upload.wikimedia.org/wikipedia/commons/9/9f/Ayrton_Senna_Pesawat_RC_Cropped.jpg",
           width: 156,
           height: 156,
         }}

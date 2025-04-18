@@ -1,7 +1,7 @@
 import { Tabs } from "expo-router";
 import Icon from "@expo/vector-icons/AntDesign";
 
-export default function UserLayout() {
+export default function AdminLayout() {
   return (
     <Tabs
       screenOptions={{
@@ -13,38 +13,28 @@ export default function UserLayout() {
         name="index"
         options={{
           tabBarIcon: ({ color }) => (
-            <Icon name="home" size={24} color={color} />
+            <Icon name="team" size={24} color={color} />
           ),
-          title: "Início",
+          title: "Gerenciar Atletas",
           headerShown: true,
         }}
       />
       <Tabs.Screen
-        name="classes"
+        name="gestores"
         options={{
-          tabBarIcon: ({ color }) => (
-            <Icon name="book" size={24} color={color} />
-          ),
-          title: "Aulas"
-        }}
-      />
-
-      <Tabs.Screen
-        name="contact"
-        options={{
-          title: "Contacto",
-          headerShown: true,
-          tabBarIcon: ({ color }) => (
-            <Icon name="phone" size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Perfil",
           tabBarIcon: ({ color }) => (
             <Icon name="user" size={24} color={color} />
+          ),
+          title: "Gestores"
+        }}
+      />
+      <Tabs.Screen
+        name="configuracoes"
+        options={{
+          title: "Configurações",
+          headerShown: true,
+          tabBarIcon: ({ color }) => (
+            <Icon name="setting" size={24} color={color} />
           ),
         }}
       />

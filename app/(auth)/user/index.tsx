@@ -2,13 +2,13 @@ import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
 import { WarningBanner } from "@/components/WarningBanner";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Pressable } from "react-native-gesture-handler";
 import Icon from "@expo/vector-icons/AntDesign";
-import { useTheme } from "@react-navigation/native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Button } from "@/components/ThemedButton";
 import { useRouter } from "expo-router";
 import { Badge } from "@/components/Badge";
+import { DateDayButton } from "@/components/DateButton";
+import { FilterButton } from "@/components/FilterButton";
 
 export default function UserHome() {
   const secondaryBackground = useThemeColor({}, "secondary");
@@ -87,91 +87,6 @@ export default function UserHome() {
     </PageContainer>
   );
 }
-
-function FilterButton() {
-  return (
-    <Pressable
-      style={[
-        {
-          backgroundColor: "#F3F4F6",
-        },
-        filterButtonStyles.filterButton,
-      ]}
-    >
-      <Icon name="filter" size={24} color="#000" />
-    </Pressable>
-  );
-}
-
-const filterButtonStyles = StyleSheet.create({
-  filterButton: {
-    backgroundColor: "#F3F4F6",
-    borderRadius: 10,
-    padding: 10,
-  },
-});
-
-interface DateButtonProps {
-  monthDay: number;
-  weekDay: string;
-  active?: boolean;
-}
-
-function DateDayButton({ monthDay, weekDay, active = false }: DateButtonProps) {
-  const notActiveBg = useThemeColor({}, "secondary");
-  const activeBg = useThemeColor({}, "primary");
-  const textColor = useThemeColor({}, "text");
-  const backgroundColor = active ? activeBg : notActiveBg;
-
-  return (
-    <Pressable
-      style={[
-        {
-          backgroundColor,
-        },
-        dateButtonStyles.dateButton,
-      ]}
-    >
-      <Text
-        style={[
-          dateButtonStyles.weekDay,
-          { color: active ? "#fff" : textColor },
-        ]}
-      >
-        {weekDay}
-      </Text>
-      <Text
-        style={[
-          dateButtonStyles.monthDay,
-          {
-            color: active ? "#fff" : textColor,
-          },
-        ]}
-      >
-        {monthDay}
-      </Text>
-    </Pressable>
-  );
-}
-
-const dateButtonStyles = StyleSheet.create({
-  dateButton: {
-    borderRadius: 10,
-    padding: 10,
-    width: "20%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  monthDay: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  weekDay: {
-    opacity: 0.8,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});
 
 interface AvaliableClassItemProps {
   title: string;

@@ -1,7 +1,7 @@
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider,
+  ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -10,10 +10,59 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Colors } from "@/constants/Colors";
+import { PaperProvider } from "react-native-paper";
+import { ThemeProvider, useTheme } from "@/context/ThemeContext";
+import { ColorValue } from "react-native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+function DrawerNavigator({ backgroundColor }: { backgroundColor: ColorValue | undefined }) {
+  return (
+    <Drawer
+      screenOptions={{
+        sceneStyle: {
+          backgroundColor,
+        },
+        headerTitle: "[DEV] Drawer navigation",
+      }}
+    >
+      <Drawer.Screen name="(auth)/user" options={{ drawerLabel: "User" }} />
+      <Drawer.Screen
+        name="(auth)/admin"
+        options={{ drawerLabel: "Admin" }}
+      />
+      <Drawer.Screen
+        name="(auth)/manager"
+        options={{ drawerLabel: "Manager" }}
+      />
+      <Drawer.Screen
+        name="(not-auth)"
+        options={{ drawerLabel: "Auth flow" }}
+      />
+      <Drawer.Screen
+        name="+not-found"
+        options={{ drawerLabel: "Not found" }}
+      />
+    </Drawer>
+  );
+}
+
+function AppContent() {
+  const { theme } = useTheme();
+  const backgroundColor = theme.colors.background;
+
+  return (
+    <NavigationThemeProvider value={theme}>
+      <PaperProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <DrawerNavigator backgroundColor={backgroundColor} />
+          <StatusBar style="auto" />
+        </GestureHandlerRootView>
+      </PaperProvider>
+    </NavigationThemeProvider>
+  );
+}
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -30,39 +79,9 @@ export default function RootLayout() {
     return null;
   }
 
-  const backgroundColor = Colors.light.background;
-
   return (
-    <ThemeProvider value={DefaultTheme}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Drawer
-          screenOptions={{
-            sceneStyle: {
-              backgroundColor,
-            },
-            headerTitle: "[DEV] Drawer navigation",
-          }}
-        >
-          <Drawer.Screen name="(auth)/user" options={{ drawerLabel: "User" }} />
-          <Drawer.Screen
-            name="(auth)/admin/index"
-            options={{ drawerLabel: "Admin" }}
-          />
-          <Drawer.Screen
-            name="(auth)/manager/index"
-            options={{ drawerLabel: "Manager" }}
-          />
-          <Drawer.Screen
-            name="(not-auth)"
-            options={{ drawerLabel: "Auth flow" }}
-          />
-          <Drawer.Screen
-            name="+not-found"
-            options={{ drawerLabel: "Not found" }}
-          />
-        </Drawer>
-        <StatusBar style="auto" />
-      </GestureHandlerRootView>
+    <ThemeProvider>
+      <AppContent />
     </ThemeProvider>
   );
 }
