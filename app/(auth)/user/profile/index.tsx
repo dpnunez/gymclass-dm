@@ -33,6 +33,15 @@ export default function UserProfile() {
       },
       onPress: () => router.push("/(auth)/user/profile/subscription"),
     },
+    {
+      title: "Desconectar",
+      icon: {
+        name: "logout",
+        color: "#FF5733",
+        backgroundColor: "#f4c1c1",
+      },
+      onPress: () => router.push("/(not-auth)/login"),
+    },
   ] as const;
 
   return (
