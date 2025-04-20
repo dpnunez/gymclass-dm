@@ -1,5 +1,5 @@
 import { StyleSheet, Pressable, View } from "react-native";
-import { useRouter } from "expo-router";
+import { Href, useRouter } from "expo-router";
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
 
@@ -7,20 +7,19 @@ export default function MembersIndexScreen() {
   const router = useRouter();
 
   const menuItems = [
-    { title: "Alunos", path: "/members/students" },
-    { title: "Professores", path: "/members/teachers" },
-    { title: "Modalidades", path: "/members/modalities" },
+    { title: "Alunos", path: "/(auth)/manager/members/students" },
+    { title: "Professores", path: "/(auth)/manager/members/teachers" },
+    { title: "Modalidades", path: "/(auth)/manager/members/modalities" },
   ];
 
   return (
     <PageContainer as={View} style={styles.container}>
-      {/* Linha divisória */}
       <View style={styles.divider} />
 
       {menuItems.map((item) => (
         <Pressable
           key={item.title}
-          onPress={() => router.push(item.path)}
+          onPress={() => router.push(item.path as Href)}
           style={styles.button}
         >
           <Text style={styles.buttonText}>

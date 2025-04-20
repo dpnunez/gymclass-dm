@@ -1,52 +1,72 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
-import { useLocalSearchParams } from "expo-router";
-import { Image, StyleSheet, View } from "react-native";
+import { FlatList, Image, StyleSheet, View } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
-export default function TeacherProfileScreen() {
-  const { id } = useLocalSearchParams();
+const modalities = [
+  {
+    name: "Yoga Matinal",
+    date: "15 de Janeiro de 2025",
+    duration: "45 min",
+    professor: "Prof Marcos",
+    image: "https://source.unsplash.com/featured/?yoga",
+  },
+  {
+    name: "Pilates Básico",
+    date: "12 de Janeiro de 2025",
+    duration: "30 min",
+    professor: "Prof Mariana",
+    image: "https://source.unsplash.com/featured/?pilates",
+  },
+  {
+    name: "Meditação",
+    date: "10 de Janeiro de 2025",
+    duration: "20 min",
+    professor: "Prof Jurandir",
+    image: "https://source.unsplash.com/featured/?meditation",
+  },
+  {
+    name: "Treino HIIT",
+    date: "8 de Janeiro de 2025",
+    duration: "35 min",
+    professor: "Prof Samuel Mendonça",
+    image: "https://source.unsplash.com/featured/?hiit",
+  },
+];
 
-  const teacher = {
-    id: id || "#12455",
-    name: "Joana Silva",
-    email: "joao@gmail.com",
-    avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-    classes: [
-      { name: "Yoga Flow", date: "12/12/2025", shift: "Turno B" },
-      { name: "Functional", date: "10/12/2025", shift: "Turno A" },
-    ],
-  };
-
+export default function ModalitiesScreen() {
   return (
     <PageContainer as={View} style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.profileTitle}>Perfil</Text>
+      {/* Card resumo */}
+      <View style={styles.summaryCard}>
+        <Text style={styles.summaryLabel}>Modalidades em Aberto</Text>
+        <Text style={styles.summaryCount}>{modalities.length}</Text>
+      </View>
 
-        <Image
-          source={{ uri: teacher.avatar }}
-          style={styles.avatar}
-        />
-
-        <Text type="subtitle" style={styles.nameText}>
-          {teacher.name}
-        </Text>
-        <Text style={styles.emailText}>{teacher.email}</Text>
-        <Text style={styles.idText}>{`ID: ${teacher.id}`}</Text>
-
-        <View style={styles.classList}>
-          {teacher.classes.map((item) => (
-            <View key={item.name} style={styles.classItem}>
-              <View>
-                <Text style={styles.className}>{item.name}</Text>
-                <Text style={styles.classDate}>{item.date}</Text>
-              </View>
-              <View style={styles.shiftBadge}>
-                <Text style={styles.shiftText}>{item.shift}</Text>
+      {/* Lista */}
+      <FlatList
+        data={modalities}
+        keyExtractor={(item) => item.name}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        renderItem={({ item }) => (
+          <View style={styles.card}>
+            <Image
+              source={{ uri: item.image }}
+              style={styles.image}
+            />
+            <View style={styles.cardContent}>
+              <Text style={styles.title}>{item.name}</Text>
+              <Text style={styles.date}>{item.date}</Text>
+              <View style={styles.meta}>
+                <Feather name="clock" size={12} color="#888" />
+                <Text style={styles.metaText}>{item.duration}</Text>
+                <Feather name="user" size={12} color="#888" />
+                <Text style={styles.metaText}>{item.professor}</Text>
               </View>
             </View>
-          ))}
-        </View>
-      </View>
+          </View>
+        )}
+      />
     </PageContainer>
   );
 }
@@ -54,70 +74,67 @@ export default function TeacherProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24, // px-6
-    paddingTop: 24,         // pt-6
+    paddingHorizontal: 16, // px-4
+    paddingTop: 24, // pt-6
     backgroundColor: "#f3f4f6", // bg-gray-100
+  },
+  summaryCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  summaryLabel: {
+    fontSize: 14,
+    color: "#6b7280", // text-gray-500
+  },
+  summaryCount: {
+    fontSize: 20,
+    fontWeight: "bold",
   },
   card: {
     backgroundColor: "#ffffff",
     borderRadius: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 6,
-    padding: 24,
-    alignItems: "center",
-    elevation: 4, // Android shadow
-  },
-  profileTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+    padding: 12,
     marginBottom: 16,
-  },
-  avatar: {
-    width: 96,  // w-24
-    height: 96, // h-24
-    borderRadius: 48, // rounded-full
-    marginBottom: 8,
-  },
-  nameText: {
-    textAlign: "center",
-  },
-  emailText: {
-    fontSize: 14,
-    color: "#6b7280", // text-gray-500
-  },
-  idText: {
-    fontSize: 12,
-    color: "#9ca3af", // text-gray-400
-    marginBottom: 16,
-  },
-  classList: {
-    width: "100%",
-    marginTop: 8,
-    gap: 16, // space-y-4 equivalente
-  },
-  classItem: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  image: {
+    width: 64,
+    height: 64,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  cardContent: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  title: {
+    fontWeight: "600",
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  date: {
+    fontSize: 12,
+    color: "#6b7280",
+  },
+  meta: {
+    flexDirection: "row",
     alignItems: "center",
+    marginTop: 4,
+    gap: 8,
+    flexWrap: "wrap",
   },
-  className: {
-    fontWeight: "600",
-  },
-  classDate: {
+  metaText: {
     fontSize: 12,
-    color: "#6b7280", // text-gray-500
-  },
-  shiftBadge: {
-    backgroundColor: "#d1fae5", // bg-green-100
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 9999, // rounded-full
-  },
-  shiftText: {
-    color: "#059669", // text-green-600
-    fontWeight: "600",
-    fontSize: 12,
+    color: "#6b7280",
+    marginRight: 8,
   },
 });
