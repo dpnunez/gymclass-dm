@@ -8,8 +8,8 @@ import Icon from "@expo/vector-icons/AntDesign";
 const MOCK_DATA = {
   class: {
     id: "123456",
-    description: "Aula de Matemática para iniciantes",
-    name: "Matemática",
+    description: "Aula de Crossfit para iniciantes",
+    name: "Crossfit",
     teacher: "João Silva",
     date: "2023-10-01",
     time: "10:00",
