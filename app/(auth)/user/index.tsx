@@ -42,42 +42,42 @@ export default function UserHome() {
 
       <View>
         <AvaliableClassItem
-          title="Matemática"
+          title="Yoga"
           professor="Prof. João"
           vacancies={2}
           time="10:00 - 11:00"
           room="Sala 3"
         />
         <AvaliableClassItem
-          title="História"
+          title="Crossfit"
           professor="Prof. Ana"
           vacancies={5}
           time="11:00 - 12:00"
           room="Sala 2"
         />
         <AvaliableClassItem
-          title="Química"
+          title="Boxe"
           professor="Prof. Carlos"
           vacancies={0}
           time="13:00 - 14:00"
           room="Laboratório 1"
         />
         <AvaliableClassItem
-          title="Física"
+          title="RPG"
           professor="Prof. Beatriz"
           vacancies={10}
           time="14:00 - 15:00"
           room="Sala 4"
         />
         <AvaliableClassItem
-          title="Inglês"
+          title="Funcional"
           professor="Prof. Marcos"
           vacancies={3}
           time="15:00 - 16:00"
           room="Sala 5"
         />
         <AvaliableClassItem
-          title="Educação Física"
+          title="Kickboxing"
           professor="Prof. Clara"
           vacancies={8}
           time="16:00 - 17:00"
