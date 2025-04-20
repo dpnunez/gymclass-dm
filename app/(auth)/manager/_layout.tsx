@@ -32,7 +32,7 @@ export default function AdminLayout() {
         name="members"
         options={{
           title: "Membros",
-          headerShown: true,
+          headerShown: false,
           tabBarIcon: ({ color }) => (
             <Icon name="team" size={24} color={color} />
           ),
@@ -51,3 +51,5 @@ export default function AdminLayout() {
     </Tabs>
   );
 }
+
+
