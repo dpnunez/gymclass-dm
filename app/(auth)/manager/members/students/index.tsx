@@ -1,8 +1,15 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
-import { FlatList, Image, Pressable, StyleSheet, TextInput, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import { useState } from "react";
 import Icon from "@expo/vector-icons/Feather";
+import { useRouter } from "expo-router";
 
 const students = [
   {
@@ -45,6 +52,7 @@ const students = [
 
 export default function StudentListScreen() {
   const [search, setSearch] = useState("");
+  const router = useRouter();
 
   return (
     <PageContainer as={View} style={styles.container}>
@@ -75,7 +83,14 @@ export default function StudentListScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 40 }}
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <Pressable
+            onPress={() =>
+              router.push(
+                `/(auth)/manager/members/students/profile`
+              )
+            }
+            style={styles.card}
+          >
             <Image source={{ uri: item.avatar }} style={styles.avatar} />
             <View style={styles.info}>
               <Text style={styles.name}>{item.name}</Text>
@@ -96,7 +111,7 @@ export default function StudentListScreen() {
                 {item.paid ? "Pago" : "Não pago"}
               </Text>
             </View>
-          </View>
+          </Pressable>
         )}
       />
     </PageContainer>
@@ -106,9 +121,9 @@ export default function StudentListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f3f4f6", // bg-gray-100
-    paddingHorizontal: 16, // px-4
-    paddingTop: 24, // pt-6
+    backgroundColor: "#f3f4f6",
+    paddingHorizontal: 16,
+    paddingTop: 24,
   },
   summaryContainer: {
     flexDirection: "row",

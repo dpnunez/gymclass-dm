@@ -19,7 +19,7 @@ export default function AdminLayout() {
         name="students"
         options={{
           title: "Estudantes",
-          headerShown: true,
+          headerShown: false,
         }}
       />
       <Stack.Screen

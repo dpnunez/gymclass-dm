@@ -11,14 +11,21 @@ export default function AdminLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Listagem de Professores",
+          title: "Listagem de alunos",
           headerShown: true,
         }}
       />
       <Stack.Screen
         name="profile"
         options={{
-          title: "Perfil do Professor",
+          title: "Perfil do aluno",
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="plano"
+        options={{
+          title: "Planos do aluno",
           headerShown: true,
         }}
       />

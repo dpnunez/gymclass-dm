@@ -2,6 +2,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
 import { FlatList, Image, Pressable, StyleSheet, View } from "react-native";
 import Icon from "@expo/vector-icons/Feather";
+import { useRouter } from "expo-router";
 
 const teachers = [
   {
@@ -43,6 +44,8 @@ const teachers = [
 ];
 
 export default function TeachersScreen() {
+  const router = useRouter();
+
   return (
     <PageContainer as={View} style={styles.container}>
       {/* Header */}
@@ -66,12 +69,16 @@ export default function TeachersScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 50 }}
         renderItem={({ item }) => (
-          <Pressable style={styles.card}>
+          <Pressable
+            onPress={() =>
+              router.push(
+                `/(auth)/manager/members/teachers/profile`
+              )
+            }
+            style={styles.card}
+          >
             <View style={styles.cardLeft}>
-              <Image
-                source={{ uri: item.avatar }}
-                style={styles.avatar}
-              />
+              <Image source={{ uri: item.avatar }} style={styles.avatar} />
               <View>
                 <Text style={styles.name}>{item.name}</Text>
                 <Text style={styles.id}>{`ID: ${item.id}`}</Text>
@@ -92,9 +99,9 @@ export default function TeachersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16, // px-4
-    paddingTop: 24, // pt-6
-    backgroundColor: "#f3f4f6", // bg-gray-100
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    backgroundColor: "#f3f4f6",
   },
   headerCard: {
     backgroundColor: "#ffffff",
@@ -106,7 +113,7 @@ const styles = StyleSheet.create({
   },
   headerLabel: {
     fontSize: 14,
-    color: "#6b7280", // text-gray-500
+    color: "#6b7280",
   },
   headerCount: {
     fontSize: 20,
@@ -124,7 +131,7 @@ const styles = StyleSheet.create({
   },
   filterIcons: {
     flexDirection: "row",
-    gap: 16, // equivalente ao space-x-4
+    gap: 16,
   },
   card: {
     backgroundColor: "#ffffff",
@@ -144,29 +151,30 @@ const styles = StyleSheet.create({
   cardLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12, // space-x-3
+    gap: 12,
   },
   avatar: {
-    width: 40, // w-10
-    height: 40, // h-10
-    borderRadius: 20, // rounded-full
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   name: {
     fontWeight: "600",
   },
   id: {
     fontSize: 12,
-    color: "#6b7280", // text-gray-500
+    color: "#6b7280",
   },
   modalityLabel: {
     fontSize: 12,
     textAlign: "right",
-    color: "#9ca3af", // text-gray-400
+    color: "#9ca3af",
   },
   modality: {
     fontSize: 14,
-    color: "#3b82f6", // text-blue-500
+    color: "#3b82f6",
     fontWeight: "600",
     textAlign: "right",
   },
 });
+
