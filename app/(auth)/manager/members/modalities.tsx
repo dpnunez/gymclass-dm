@@ -1,4 +1,5 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
+import { Text } from "@/components/ThemedText";
 
 export default function ManagerMembers() {
   return (
