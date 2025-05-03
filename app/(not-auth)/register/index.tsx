@@ -70,7 +70,17 @@ export default function RegisterPage() {
       if (error.code === "auth/email-already-in-use") {
         Alert.alert(
           "Ocorreu um erro",
-          "Este email já está cadastrado. Por favor, use outro email ou faça login."
+          "Este email já está cadastrado. Por favor, use outro email ou faça login.",
+          [
+            {
+              text: "Fazer Login",
+              onPress: () => router.replace("/(not-auth)/login"),
+            },
+            {
+              text: "Cancelar",
+              style: "cancel",
+            },
+          ]
         );
       } else {
         Alert.alert("Erro", "Ocorreu um erro ao registrar. Tente novamente.");
@@ -133,6 +143,7 @@ export default function RegisterPage() {
           helperText={form.formState.errors.confirmPassword?.message}
         />
         <Button
+          loading={form.formState.isSubmitting}
           size="large"
           style={styles.submitButton}
           onPress={form.handleSubmit(handleRegister)}

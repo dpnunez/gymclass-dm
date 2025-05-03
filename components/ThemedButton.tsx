@@ -1,11 +1,12 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { ComponentProps } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text } from "react-native";
 
 interface ThemedButtonProps extends ComponentProps<typeof Pressable> {
   size?: "small" | "medium" | "large";
   lightColor?: string;
   darkColor?: string;
+  loading?: boolean;
 }
 
 export function Button({
@@ -13,6 +14,7 @@ export function Button({
   lightColor,
   size = "medium",
   darkColor,
+  loading = false,
   style,
   ...props
 }: ThemedButtonProps) {
@@ -36,7 +38,6 @@ export function Button({
       style={({ pressed }) => [
         {
           backgroundColor: props.disabled ? disabledColor : color,
-
           opacity: pressed ? 0.5 : 1,
         },
         styles.button,
@@ -44,8 +45,11 @@ export function Button({
         ...(style ? (Array.isArray(style) ? style : [style]) : ([] as any)),
       ]}
       {...props}
+      disabled={props.disabled || loading}
     >
-      {typeof children === "string" ? (
+      {loading ? (
+        <ActivityIndicator color="#FFFFFF" />
+      ) : typeof children === "string" ? (
         <Text style={styles.text}>{children}</Text>
       ) : (
         children
