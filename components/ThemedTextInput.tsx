@@ -5,34 +5,49 @@ import {
   View,
 } from "react-native";
 import { Text } from "./ThemedText";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface ThemedTextInputProps extends TextInputProps {
   label?: string;
   size?: "small" | "medium" | "large";
+  error?: boolean;
+  helperText?: string;
 }
 
 export function TextInput({
   label,
   size = "medium",
+  error = false,
+  helperText,
   ...props
 }: ThemedTextInputProps) {
   const placeholderTextColor = "#6B7280";
+  const errorColor = useThemeColor({}, "error");
 
   return (
-    <View style={styles.container}>
-      <Text>{label}</Text>
+    <View>
+      {label && <Text style={styles.label}>{label}</Text>}
       <TextInputBase
         placeholderTextColor={placeholderTextColor}
         {...props}
-        style={[styles.input, styles[size]]}
+        style={[
+          styles.input,
+          styles[size],
+          error && { borderColor: errorColor },
+        ]}
       />
+      {helperText && (
+        <Text style={[styles.helperText, error && { color: errorColor }]}>
+          {helperText}
+        </Text>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    gap: 4,
+  label: {
+    marginBottom: 4,
   },
   input: {
     padding: 10,
@@ -48,5 +63,9 @@ const styles = StyleSheet.create({
   },
   large: {
     padding: 16,
+  },
+  helperText: {
+    fontSize: 12,
+    color: "#6B7280",
   },
 });

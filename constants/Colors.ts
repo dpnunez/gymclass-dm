@@ -2,7 +2,7 @@
  * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
-import {createContext, useContext, useState} from 'react';
+import { createContext, useContext, useState } from "react";
 
 const tintColorLight = "#0a7ea4";
 const tintColorDark = "#fff";
@@ -18,6 +18,7 @@ export const Colors = {
     primary: "#007AFF",
     secondary: "#E5E7EB",
     disabled: "#F3F4F6",
+    error: "#FF6F61",
   },
   dark: {
     text: "#ECEDEE",
@@ -29,6 +30,7 @@ export const Colors = {
     secondary: "#E5E7EB",
     primary: "#007AFF",
     disabled: "#F3F4F6",
+    error: "#FF6F61",
   },
 };
 
@@ -39,4 +41,4 @@ export const updateColorsConstant = (primaryColor: string) => {
   Colors.dark.primary = primaryColor;
   Colors.dark.tint = primaryColor;
   Colors.dark.tabIconSelected = primaryColor;
-}
+};
