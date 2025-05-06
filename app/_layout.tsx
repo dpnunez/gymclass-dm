@@ -13,11 +13,16 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { ColorValue } from "react-native";
+import { UserProvider } from "@/context/AuthContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-function DrawerNavigator({ backgroundColor }: { backgroundColor: ColorValue | undefined }) {
+function DrawerNavigator({
+  backgroundColor,
+}: {
+  backgroundColor: ColorValue | undefined;
+}) {
   return (
     <Drawer
       screenOptions={{
@@ -28,22 +33,13 @@ function DrawerNavigator({ backgroundColor }: { backgroundColor: ColorValue | un
       }}
     >
       <Drawer.Screen name="(auth)/user" options={{ drawerLabel: "User" }} />
-      <Drawer.Screen
-        name="(auth)/admin"
-        options={{ drawerLabel: "Admin" }}
-      />
+      <Drawer.Screen name="(auth)/admin" options={{ drawerLabel: "Admin" }} />
       <Drawer.Screen
         name="(auth)/manager"
         options={{ drawerLabel: "Manager" }}
       />
-      <Drawer.Screen
-        name="(not-auth)"
-        options={{ drawerLabel: "Auth flow" }}
-      />
-      <Drawer.Screen
-        name="+not-found"
-        options={{ drawerLabel: "Not found" }}
-      />
+      <Drawer.Screen name="(not-auth)" options={{ drawerLabel: "Auth flow" }} />
+      <Drawer.Screen name="+not-found" options={{ drawerLabel: "Not found" }} />
     </Drawer>
   );
 }
@@ -55,10 +51,12 @@ function AppContent() {
   return (
     <NavigationThemeProvider value={theme}>
       <PaperProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <DrawerNavigator backgroundColor={backgroundColor} />
-          <StatusBar style="auto" />
-        </GestureHandlerRootView>
+        <UserProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <DrawerNavigator backgroundColor={backgroundColor} />
+            <StatusBar style="auto" />
+          </GestureHandlerRootView>
+        </UserProvider>
       </PaperProvider>
     </NavigationThemeProvider>
   );
