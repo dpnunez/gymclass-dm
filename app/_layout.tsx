@@ -8,39 +8,36 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
-import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { ColorValue } from "react-native";
 import { UserProvider } from "@/context/AuthContext";
+import { Stack } from "expo-router";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-function DrawerNavigator({
+function StackNavigator({
   backgroundColor,
 }: {
   backgroundColor: ColorValue | undefined;
 }) {
   return (
-    <Drawer
+    <Stack
       screenOptions={{
-        sceneStyle: {
+        contentStyle: {
           backgroundColor,
         },
-        headerTitle: "[DEV] Drawer navigation",
+        headerTitle: "[DEV] Stack navigation",
       }}
     >
-      <Drawer.Screen name="(auth)/user" options={{ drawerLabel: "User" }} />
-      <Drawer.Screen name="(auth)/admin" options={{ drawerLabel: "Admin" }} />
-      <Drawer.Screen
-        name="(auth)/manager"
-        options={{ drawerLabel: "Manager" }}
-      />
-      <Drawer.Screen name="(not-auth)" options={{ drawerLabel: "Auth flow" }} />
-      <Drawer.Screen name="+not-found" options={{ drawerLabel: "Not found" }} />
-    </Drawer>
+      <Stack.Screen name="(auth)/user" options={{ title: "User" }} />
+      <Stack.Screen name="(auth)/admin" options={{ title: "Admin" }} />
+      <Stack.Screen name="(auth)/manager" options={{ title: "Manager" }} />
+      <Stack.Screen name="(not-auth)" options={{ title: "Auth flow" }} />
+      <Stack.Screen name="+not-found" options={{ title: "Not found" }} />
+    </Stack>
   );
 }
 
@@ -53,7 +50,7 @@ function AppContent() {
       <PaperProvider>
         <UserProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <DrawerNavigator backgroundColor={backgroundColor} />
+            <StackNavigator backgroundColor={backgroundColor} />
             <StatusBar style="auto" />
           </GestureHandlerRootView>
         </UserProvider>

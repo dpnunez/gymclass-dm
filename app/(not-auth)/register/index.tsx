@@ -5,7 +5,7 @@ import { ThemedTextInputForm as TextInput } from "@/components/ThemedTextInputFo
 import { Button } from "@/components/ThemedButton";
 import { useRouter } from "expo-router";
 
-import { firebaseApp } from "@/firebase.config";
+import { firebaseApp, firebaseDb } from "@/firebase.config";
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -14,6 +14,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { addDoc, collection } from "firebase/firestore";
 
 const schema = z
   .object({
@@ -55,6 +56,11 @@ export default function RegisterPage() {
       );
       const user = userCredential.user;
       await sendEmailVerification(user);
+      await addDoc(collection(firebaseDb, "userRole"), {
+        userId: user.uid,
+        mail: email,
+        role: "consumer",
+      })
 
       Alert.alert(
         "Sucesso",
@@ -67,6 +73,7 @@ export default function RegisterPage() {
         ]
       );
     } catch (error: any) {
+      console.log(error)
       if (error.code === "auth/email-already-in-use") {
         Alert.alert(
           "Ocorreu um erro",

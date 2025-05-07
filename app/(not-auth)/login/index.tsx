@@ -5,9 +5,11 @@ import { Link } from "expo-router";
 import { Image, StyleSheet, Alert } from "react-native";
 import { useForm } from "react-hook-form";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { firebaseAuth } from "@/firebase.config";
+import { firebaseApp, firebaseAuth, firebaseDb } from "@/firebase.config";
 import { ThemedTextInputForm } from "@/components/ThemedTextInputForm";
 import { z } from "zod";
+import { collection, getDoc, getDocs, query, where } from "firebase/firestore";
+import { useUser } from "@/context/AuthContext";
 
 const loginSchema = z.object({
   email: z.string().min(1, "Email é obrigatório").email("Email inválido"),
@@ -22,6 +24,7 @@ export default function Login() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormInputs>();
+  const { getUserRole, redirectToHome} = useUser()
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
@@ -37,7 +40,12 @@ export default function Login() {
           "Por favor, verifique seu email antes de fazer login."
         );
         return;
-      }
+      };
+
+      const role = await getUserRole(res.user.uid);
+
+      redirectToHome(role)
+
       Alert.alert("Login realizado com sucesso!");
     } catch (error: any) {
       Alert.alert("Erro ao fazer login", error.message);

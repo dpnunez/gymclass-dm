@@ -4,7 +4,7 @@ import { Image, StyleSheet, View } from "react-native";
 import { FlatList, Pressable } from "react-native-gesture-handler";
 import Icon from "@expo/vector-icons/AntDesign";
 import { ComponentProps } from "react";
-import { useRouter } from "expo-router";
+import { useUser } from "@/context/AuthContext";
 
 const MOCK_USER = {
   name: "Ayrton Senna da Silva",
@@ -12,7 +12,7 @@ const MOCK_USER = {
 };
 
 export default function ManagerProfile() {
-  const router = useRouter();
+  const { logout } = useUser();
 
   const actions = [
     {
@@ -22,7 +22,7 @@ export default function ManagerProfile() {
         color: "#FF5733",
         backgroundColor: "#f4c1c1",
       },
-      onPress: () => router.push("/(not-auth)/login"),
+      onPress: logout,
     },
   ] as const;
 
