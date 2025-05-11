@@ -13,6 +13,8 @@ import { PaperProvider } from "react-native-paper";
 import { ThemeProvider, useTheme } from "@/context/ThemeContext";
 import { ColorValue } from "react-native";
 import { UserProvider } from "@/context/AuthContext";
+import { ClassProvider } from "@/context/ClassContext";
+import { ConfigProvider } from "@/context/ConfigContext";
 import { Stack } from "expo-router";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -49,10 +51,14 @@ function AppContent() {
     <NavigationThemeProvider value={theme}>
       <PaperProvider>
         <UserProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <StackNavigator backgroundColor={backgroundColor} />
-            <StatusBar style="auto" />
-          </GestureHandlerRootView>
+          <ClassProvider>
+            <ConfigProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <StackNavigator backgroundColor={backgroundColor} />
+                <StatusBar style="auto" />
+              </GestureHandlerRootView>
+            </ConfigProvider>
+          </ClassProvider>
         </UserProvider>
       </PaperProvider>
     </NavigationThemeProvider>
