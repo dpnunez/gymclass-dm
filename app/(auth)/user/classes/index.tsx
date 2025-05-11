@@ -1,84 +1,46 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View, ActivityIndicator } from "react-native";
 import Icon from "@expo/vector-icons/MaterialIcons";
 import { FlatList, Pressable } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
-
-const MOCK_DATA: ClassItemProps[] = [
-  {
-    id: "1",
-    name: "Yoga",
-    date: "10 de Outubro de 2025",
-    duration: "2 horas",
-    status: "upcoming",
-  },
-  {
-    id: "2",
-    name: "Kickboxing",
-    date: "15 de Outubro de 2025",
-    duration: "1 hora",
-    status: "canceled",
-  },
-  {
-    id: "3",
-    name: "RPG",
-    date: "20 de Outubro de 2025",
-    duration: "3 horas",
-    status: "completed",
-  },
-  {
-    id: "4",
-    name: "Funcional",
-    date: "25 de Outubro de 2025",
-    duration: "2 horas",
-    status: "missed",
-  },
-  {
-    id: "5",
-    name: "Crossfit",
-    date: "30 de Outubro de 2025",
-    duration: "1 hora",
-    status: "upcoming",
-  },
-  {
-    id: "6",
-    name: "Crossfit",
-    date: "5 de Novembro de 2025",
-    duration: "2 horas",
-    status: "canceled",
-  },
-  {
-    id: "7",
-    name: "Kickboxing",
-    date: "10 de Novembro de 2025",
-    duration: "1 hora",
-    status: "completed",
-  },
-  {
-    id: "8",
-    name: "RPG",
-    date: "15 de Novembro de 2025",
-    duration: "3 horas",
-    status: "missed",
-  },
-];
+import { useUser } from "@/context/AuthContext";
+import { useClasses } from "@/context/ClassContext";
 
 type ClassStatus = "upcoming" | "canceled" | "completed" | "missed";
 
 export default function ClassesPage() {
+  const { user } = useUser();
+  const {
+    loading,
+    isUserEnrolled,
+    classes
+  } = useClasses();
+
+  if (loading) {
+    return (
+      <PageContainer contentContainerStyle={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text>Carregando aulas...</Text>
+        </View>
+      </PageContainer>
+    );
+  }
+
+
   return (
     <PageContainer as={View}>
       <FlatList
-        data={MOCK_DATA}
+        data={classes.filter(({ id }) => isUserEnrolled(id))}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <ClassItem
             id={item.id}
             name={item.name}
-            date={item.date}
-            duration={item.duration}
-            status={item.status}
+            date={item.startingDate}
+            duration={item.minuteLength}
+            status={item.status as ClassStatus}
           />
         )}
         contentContainerStyle={{ gap: 32 }}
@@ -94,8 +56,8 @@ export default function ClassesPage() {
 interface ClassItemProps {
   id: string;
   name: string;
-  date: string;
-  duration: string;
+  date: Date;
+  duration: number;
   status: ClassStatus;
 }
 
@@ -122,28 +84,38 @@ function ClassItem({ name, date, duration, status, id }: ClassItemProps) {
     missed: "Perdida",
   } as const;
 
+  const getStatusData = (status: string) => {
+    switch (status) {
+      case "upcoming":
+        return "upcoming" as ClassStatus;
+      case "canceled":
+        return "canceled" as ClassStatus;
+      case "completed":
+        return "completed" as ClassStatus;
+      case "missed":
+        return "missed" as ClassStatus;
+      default:
+        return "upcoming" as ClassStatus;
+    }
+  }
+
+  const statusFinal = getStatusData(status);
   return (
     <Pressable
       style={stylesItem.container}
       onPress={() => router.push(`/(auth)/user/classes/${id}`)}
     >
-      <Image
-        style={stylesItem.image}
-        source={{
-          uri: "https://reactnative.dev/img/tiny_logo.png",
-        }}
-      />
       <View style={{ gap: 10, padding: 10 }}>
         <Text type="subtitle">{name}</Text>
-        <Text>{date}</Text>
         <View style={{ flexDirection: "row", gap: 10 }}>
+          <Text>{date.toLocaleDateString("en-GB")}</Text>
           <View style={stylesItem.detailSection}>
             <Icon name="punch-clock" size={20} />
-            <Text>{duration}</Text>
+            <Text>{duration + " min"}</Text>
           </View>
           <View style={stylesItem.detailSection}>
-            <Icon name={iconNames[status]} size={20} color={colors[status]} />
-            <Text lightColor={colors[status]}>{statusLabel[status]}</Text>
+            <Icon name={iconNames[statusFinal]} size={20} color={colors[statusFinal]} />
+            <Text lightColor={colors[statusFinal]}>{statusLabel[statusFinal]}</Text>
           </View>
         </View>
       </View>
@@ -169,5 +141,18 @@ const stylesItem = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
+  },
+});
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 50,
   },
 });

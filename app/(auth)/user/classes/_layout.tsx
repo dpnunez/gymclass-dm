@@ -22,13 +22,6 @@ export default function UserLayout() {
           headerShown: true,
         }}
       />
-      <Stack.Screen
-        name="[classId]/confirm/index"
-        options={{
-          title: "Inscrever-se",
-          headerShown: true,
-        }}
-      />
     </Stack>
   );
 }

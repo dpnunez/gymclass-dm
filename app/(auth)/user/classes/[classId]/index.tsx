@@ -2,53 +2,62 @@ import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ThemedButton";
 import { Text } from "@/components/ThemedText";
 import { useGlobalSearchParams, useRouter } from "expo-router";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet, View, ActivityIndicator, Image } from "react-native";
 import Icon from "@expo/vector-icons/AntDesign";
+import { useUser } from "@/context/AuthContext";
+import { useClasses } from "@/context/ClassContext";
 
-const MOCK_DATA = {
-  class: {
-    id: "123456",
-    description: "Aula de Crossfit para iniciantes",
-    name: "Crossfit",
-    teacher: "João Silva",
-    date: "2023-10-01",
-    time: "10:00",
-    location: "Sala 101",
-  },
-};
+export default function ClassConfirmSubscribe() {
+  const { user } = useUser();
+  const {
+    loading,
+    isUserEnrolled,
+    enrollInClass,
+    cancelEnrollment,
+    getClassById
+  } = useClasses();
 
-export default function ClassSubscribedDetails() {
+  if (loading) {
+    return (
+      <PageContainer contentContainerStyle={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text>Carregando aulas...</Text>
+        </View>
+      </PageContainer>
+    );
+  }
+
   const { classId } = useGlobalSearchParams();
-  const router = useRouter();
+  const selectedClass = getClassById(classId as string);
 
-  const handleCancelate = () => {
-    router.back();
-  };
-
+  const availableSpots = selectedClass?.vagas! - selectedClass?.inscritos!;
+  const isFull = availableSpots === 0;
+  const isEnrolled = isUserEnrolled(classId as string);
   return (
     <PageContainer contentContainerStyle={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>{MOCK_DATA.class.name}</Text>
-        <Text>{MOCK_DATA.class.description}</Text>
+        <Text style={styles.title}>{selectedClass?.name}</Text>
+        <Text>{selectedClass?.description}</Text>
         <View style={styles.itemWithIcon}>
           <Icon name="user" size={20} color="#000" />
-          <Text>{MOCK_DATA.class.teacher}</Text>
+          <Text>{selectedClass?.prof}</Text>
         </View>
         <View style={styles.itemWithIcon}>
           <Icon name="calendar" size={20} color="#000" />
-          <Text>{MOCK_DATA.class.date}</Text>
+          <Text>{selectedClass?.startingDate.toLocaleDateString("en-GB")}</Text>
         </View>
         <View style={styles.itemWithIcon}>
           <Icon name="clockcircleo" size={20} color="#000" />
-          <Text>{MOCK_DATA.class.time}</Text>
+          <Text>{`${selectedClass?.startingDate.getHours()}:${selectedClass?.startingDate.getMinutes()} - ${selectedClass?.minuteLength} min`}</Text>
         </View>
         <View style={styles.itemWithIcon}>
           <Icon name="enviromento" size={20} color="#000" />
-          <Text>{MOCK_DATA.class.location}</Text>
+          <Text>{"Sala " + selectedClass?.sala}</Text>
         </View>
       </View>
 
-      <View style={{ gap: 10 }}>
+      {isEnrolled ? (<View style={{ gap: 10 }}>
         <View style={[styles.itemWithIcon, { justifyContent: "center" }]}>
           <Icon name="checkcircle" size={24} color="#4CAF50" />
           <Text style={{ color: "#4CAF50" }}>Inscrito com sucesso!</Text>
@@ -63,10 +72,21 @@ export default function ClassSubscribedDetails() {
           Apresente este QR Code na entrada da sala para confirmar sua presença.
         </Text>
       </View>
+      ) : (<></>)}
+
       <View style={{ marginBottom: 20, gap: 10 }}>
-        <Button size="large" onPress={handleCancelate} lightColor="#EF4444">
-          Cancelar Inscrição
-        </Button>
+        {!isEnrolled ? (
+          <Button size="large" onPress={() => enrollInClass(classId as string)}
+            disabled={isFull}
+          >
+            {isFull ? "Lotada" : "Inscrever-se"}
+          </Button>) :
+          (<Button size="large" onPress={() => cancelEnrollment(classId as string)}
+            lightColor="#f40000"
+          >
+            {"Desinscrever-se"}
+          </Button>)
+        }
       </View>
     </PageContainer>
   );
@@ -91,5 +111,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 50,
   },
 });
