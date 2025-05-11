@@ -1,42 +1,15 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
-import { Image, View, ScrollView, StyleSheet } from "react-native";
+import { Image, View, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { Pressable } from "react-native-gesture-handler";
 import { useTheme } from "@/context/ThemeContext";
 import Icon from "@expo/vector-icons/AntDesign";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { GestorClassProps, GestorPagProps } from "@/types/ManagerTypes";
+import { useUser } from "@/context/AuthContext";
+import { useClasses } from "@/context/ClassContext";
 
-const MOCK_DATA_CLASS: GestorClassProps[] = [
-  {
-    id: "1",
-    name: "Atletismo",
-    prof: "Marcos Dias",
-    startingDate: new Date(2025, 3, 16, 11, 0),
-    minuteLength: 60,
-    vagas: 20,
-    inscritos: 18,
-  },
-  {
-    id: "2",
-    name: "Yoga Iniciante",
-    prof: "Maria Silva",
-    startingDate: new Date(2025, 3, 17, 9, 0),
-    minuteLength: 60,
-    vagas: 18,
-    inscritos: 6,
-  },
-  {
-    id: "3",
-    name: "Musculação",
-    prof: "João Santos",
-    startingDate: new Date(2025, 3, 17, 11, 30),
-    minuteLength: 60,
-    vagas: 10,
-    inscritos: 4,
-  },
-];
 const MOCK_DATA_PAG: GestorPagProps[] = [
   {
     id: "1",
@@ -72,10 +45,25 @@ const MOCK_DATA_PAG: GestorPagProps[] = [
 const refDate = new Date(2025, 3, 17, 8, 15);
 
 export default function ManagerHome() {
+  const { user } = useUser();
+  const {
+    loading,
+    classes
+  } = useClasses();
   const { theme } = useTheme();
 
-  const [classData, setClassData] = useState(MOCK_DATA_CLASS);
-  const nextClasses = classData
+  if (loading) {
+    return (
+      <PageContainer contentContainerStyle={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text>Carregando aulas...</Text>
+        </View>
+      </PageContainer>
+    );
+  }
+
+  const nextClasses = classes
     .filter((item) => refDate < item.startingDate)
     .slice(0, 2);
 
@@ -91,8 +79,8 @@ export default function ManagerHome() {
       <View style={{ width: "95%", alignSelf: "center" }}>
         <InfoBox
           colorPrimary={theme.colors.primary}
-          numberClasses={paymentData.length}
-          numberMembers={classData.length} />
+          numberClasses={classes.length}
+          numberMembers={paymentData.length} />
         <View style={{ marginTop: 40 }}>
           <View style={stylesItem.headerTitle}>
             <Text type="subtitle">Próximas Aulas</Text>
@@ -104,11 +92,12 @@ export default function ManagerHome() {
           </View>
           <View style={stylesItem.container}>
             {nextClasses.map((item) => (
-              <NextClassItem 
-              key={item.id} id={item.id} name={item.name}
-              prof={item.prof} startingDate={item.startingDate}
-              minuteLength={item.minuteLength} vagas={item.vagas}
-              inscritos={item.inscritos} />))}
+              <NextClassItem
+                key={item.id} id={item.id} name={item.name}
+                prof={item.prof} startingDate={item.startingDate}
+                minuteLength={item.minuteLength} vagas={item.vagas}
+                description={item.description} status={item.status}
+                inscritos={item.inscritos} sala={item.sala} />))}
           </View>
         </View>
 
@@ -123,9 +112,9 @@ export default function ManagerHome() {
           </View>
           <View style={stylesItem.container}>
             {nextPags.map((item) => (
-              <PagamentosPendentes 
-              key={item.id} id={item.id} name={item.name}
-              vencimento={item.vencimento} />))}
+              <PagamentosPendentes
+                key={item.id} id={item.id} name={item.name}
+                vencimento={item.vencimento} />))}
           </View>
         </View>
       </View>
@@ -216,7 +205,7 @@ function PagamentosPendentes({ id, name, vencimento }: GestorPagProps) {
 function InfoBox({ colorPrimary, numberClasses, numberMembers }:
   {
     colorPrimary: string, numberClasses: number,
-    numberMembers: number 
+    numberMembers: number
   }) {
   return (
     <View style={stylesItem.infoContainer}>
@@ -292,4 +281,16 @@ const stylesItem = StyleSheet.create({
     marginTop: 24,
     gap: 20,
   }
+});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 50,
+  },
 });

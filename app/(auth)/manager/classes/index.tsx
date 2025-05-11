@@ -8,161 +8,19 @@ import Icon from "@expo/vector-icons/AntDesign";
 import { Badge } from "@/components/Badge";
 import { Menu, IconButton, Snackbar } from "react-native-paper";
 import { useState } from "react";
-import { useRouter, Router, useLocalSearchParams } from "expo-router";
+import { useRouter, Router } from "expo-router";
 import { GestorClassProps } from "@/types/ManagerTypes";
-
-const MOCK_DATA: GestorClassProps[] = [
-  {
-    id: "1",
-    name: "Atletismo",
-    prof: "Marcos Dias",
-    startingDate: new Date(2025, 3, 18, 14, 0),
-    minuteLength: 60,
-    vagas: 20,
-    inscritos: 18,
-  },
-  {
-    id: "2",
-    name: "Yoga Iniciante",
-    prof: "Maria Silva",
-    startingDate: new Date(2025, 3, 18, 9, 0),
-    minuteLength: 60,
-    vagas: 18,
-    inscritos: 6,
-  },
-  {
-    id: "3",
-    name: "Musculação",
-    prof: "João Santos",
-    startingDate: new Date(2025, 3, 18, 11, 30),
-    minuteLength: 60,
-    vagas: 10,
-    inscritos: 4,
-  },
-  {
-    id: "4",
-    name: "Crossfit",
-    prof: "Renato Torres",
-    startingDate: new Date(2025, 3, 18, 9, 30),
-    minuteLength: 45,
-    vagas: 11,
-    inscritos: 3,
-  },
-  {
-    id: "5",
-    name: "Muay Thai",
-    prof: "Renato Torres",
-    startingDate: new Date(2025, 3, 18, 19, 30),
-    minuteLength: 60,
-    vagas: 18,
-    inscritos: 13,
-  },
-  {
-    id: "6",
-    name: "Pilates",
-    prof: "Ana Lima",
-    startingDate: new Date(2025, 3, 20, 8, 0),
-    minuteLength: 50,
-    vagas: 10,
-    inscritos: 7,
-  },
-  {
-    id: "7",
-    name: "Yoga",
-    prof: "Luiza Souza",
-    startingDate: new Date(2025, 3, 21, 7, 30),
-    minuteLength: 60,
-    vagas: 12,
-    inscritos: 5,
-  },
-  {
-    id: "8",
-    name: "Functional Training",
-    prof: "Carlos Mendes",
-    startingDate: new Date(2025, 3, 23, 18, 0),
-    minuteLength: 45,
-    vagas: 15,
-    inscritos: 12,
-  },
-  {
-    id: "9",
-    name: "Boxe",
-    prof: "Renato Torres",
-    startingDate: new Date(2025, 3, 24, 20, 0),
-    minuteLength: 60,
-    vagas: 16,
-    inscritos: 9,
-  },
-  {
-    id: "10",
-    name: "Zumba",
-    prof: "Fernanda Alves",
-    startingDate: new Date(2025, 3, 26, 18, 30),
-    minuteLength: 50,
-    vagas: 20,
-    inscritos: 14,
-  },
-  {
-    id: "11",
-    name: "Stretching",
-    prof: "Ana Lima",
-    startingDate: new Date(2025, 3, 27, 9, 0),
-    minuteLength: 40,
-    vagas: 8,
-    inscritos: 4,
-  },
-  {
-    id: "12",
-    name: "Crossfit",
-    prof: "Renato Torres",
-    startingDate: new Date(2025, 3, 29, 9, 30),
-    minuteLength: 45,
-    vagas: 11,
-    inscritos: 6,
-  },
-  {
-    id: "13",
-    name: "Muay Thai",
-    prof: "Renato Torres",
-    startingDate: new Date(2025, 3, 29, 19, 30),
-    minuteLength: 60,
-    vagas: 18,
-    inscritos: 15,
-  },
-  {
-    id: "14",
-    name: "Muay Thai",
-    prof: "Renato Torres",
-    startingDate: new Date(2025, 3, 16, 19, 30),
-    minuteLength: 60,
-    vagas: 13,
-    inscritos: 7,
-  },
-  {
-    id: "15",
-    name: "Muay Thai",
-    prof: "Renato Torres",
-    startingDate: new Date(2025, 4, 2, 19, 30),
-    minuteLength: 60,
-    vagas: 13,
-    inscritos: 0,
-  },
-];
+import { useUser } from "@/context/AuthContext";
+import { useClasses } from "@/context/ClassContext";
 
 export default function ManagerClasses() {
-  const params = useLocalSearchParams();
-  if (params.id && !MOCK_DATA.some(item => item.id === params.id)) {
-    const newClass: GestorClassProps = {
-      id: params.id.toString(),
-      name: params.name.toString(),
-      prof: params.prof.toString(),
-      startingDate: new Date(params.startingDate.toString()),
-      minuteLength: parseInt(params.minuteLength.toString()),
-      vagas: parseInt(params.vagas.toString()),
-      inscritos: parseInt(params.inscritos.toString()),
-    }
-    MOCK_DATA.push(newClass);
-  }
+  const { user } = useUser();
+  const {
+    loading,
+    isUserEnrolled,
+    deleteClass,
+    classes
+  } = useClasses();
 
   const today = new Date();
   const todayMidnight =
@@ -171,10 +29,9 @@ export default function ManagerClasses() {
   const nextDate = new Date(currentDate);
   nextDate.setDate(nextDate.getDate() + 1);
 
-  MOCK_DATA.sort((a, b) => a.startingDate.getTime() - b.startingDate.getTime());
-  const [data, setData] = useState(MOCK_DATA);
+  classes.sort((a, b) => a.startingDate.getTime() - b.startingDate.getTime());
 
-  const selecionado = data.filter(aula => aula.startingDate >= currentDate && aula.startingDate < nextDate);
+  const selecionado = classes.filter(aula => aula.startingDate >= currentDate && aula.startingDate < nextDate);
   const matutinas = selecionado.filter(a => a.startingDate.getHours() < 12);
   const vespertinas = selecionado.filter(a => a.startingDate.getHours() >= 12 && a.startingDate.getHours() < 18);
   const noturnas = selecionado.filter(a => a.startingDate.getHours() >= 18);
@@ -191,7 +48,7 @@ export default function ManagerClasses() {
   return (
     <View style={{ flex: 1 }}>
       <PageContainer as={ScrollView} style={{ gap: 24 }}>
-        <DateButtons data={data} currentDate={currentDate}
+        <DateButtons data={classes} currentDate={currentDate}
           setCurrentDate={setCurrentDate} />
 
 
@@ -202,13 +59,13 @@ export default function ManagerClasses() {
           </Button>
         </View>
 
-        <ClassTimeGroup itemGroup={matutinas} setData={setData}
+        <ClassTimeGroup itemGroup={matutinas} deleteClass={deleteClass}
           showSnackbar={showSnackbar} router={router}
           title={"Aulas Matutinas"} />
-        <ClassTimeGroup itemGroup={vespertinas} setData={setData}
+        <ClassTimeGroup itemGroup={vespertinas} deleteClass={deleteClass}
           showSnackbar={showSnackbar} router={router}
           title={"Aulas Vespertinas"} />
-        <ClassTimeGroup itemGroup={noturnas} setData={setData}
+        <ClassTimeGroup itemGroup={noturnas} deleteClass={deleteClass}
           showSnackbar={showSnackbar} router={router}
           title={"Aulas Noturnas"} />
 
@@ -226,7 +83,7 @@ export default function ManagerClasses() {
   );
 }
 
-function ClassItem({ name, id, prof, startingDate, minuteLength, vagas, inscritos, setData, showSnackbar, router }: GestorClassPropsFull) {
+function ClassItem({ name, id, prof, startingDate, minuteLength, vagas, inscritos, deleteClass, showSnackbar, router }: GestorClassPropsFull) {
 
   const toTimeString = (date: Date, extraMin: number = 0) => {
     const temp = new Date(date);
@@ -251,12 +108,12 @@ function ClassItem({ name, id, prof, startingDate, minuteLength, vagas, inscrito
           <Text><Icon name="team" size={14} /> {vagas - inscritos} vagas</Text>
         </View>
       </View>
-      <ClassMenu name={name} id={id} setData={setData} showSnackbar={showSnackbar} router={router} />
+      <ClassMenu name={name} id={id} deleteClass={deleteClass} showSnackbar={showSnackbar} router={router} />
     </View>
   );
 }
 
-function ClassTimeGroup({ itemGroup, setData, showSnackbar, router, title }: GestorClassGroup) {
+function ClassTimeGroup({ itemGroup, deleteClass, showSnackbar, router, title }: GestorClassGroup) {
   return (
     <>
       {itemGroup.length === 0 ? <></> :
@@ -269,8 +126,9 @@ function ClassTimeGroup({ itemGroup, setData, showSnackbar, router, title }: Ges
               <ClassItem key={item.id} name={item.name} id={item.id} prof={item.prof}
                 startingDate={item.startingDate}
                 minuteLength={item.minuteLength}
-                vagas={item.vagas} inscritos={item.inscritos}
-                setData={setData} showSnackbar={showSnackbar}
+                vagas={item.vagas} inscritos={item.inscritos} sala={item.sala}
+                description={item.description} status={item.status}
+                deleteClass={deleteClass} showSnackbar={showSnackbar}
                 router={router} />
             ))}
           </View></>}
@@ -278,7 +136,7 @@ function ClassTimeGroup({ itemGroup, setData, showSnackbar, router, title }: Ges
   );
 }
 
-function ClassMenu({ name, id, setData, showSnackbar, router }: MenuClassProps) {
+function ClassMenu({ name, id, deleteClass, showSnackbar, router }: MenuClassProps) {
   const [visible, setVisible] = useState(false);
 
   function confirmAction() {
@@ -293,7 +151,7 @@ function ClassMenu({ name, id, setData, showSnackbar, router }: MenuClassProps) 
         {
           text: 'Confirmar',
           onPress: () => {
-            setData(data => data.filter(aula => aula.id !== id));
+            deleteClass(id);
             showSnackbar(`Aula ${name} removida com sucesso.`)
           },
         },
@@ -366,7 +224,7 @@ interface DateButtonsProps {
 }
 
 interface GestorClassUtils {
-  setData: React.Dispatch<React.SetStateAction<GestorClassProps[]>>;
+  deleteClass: (classId: string) => Promise<boolean>;
   showSnackbar: (message: string) => void;
   router: Router;
 }

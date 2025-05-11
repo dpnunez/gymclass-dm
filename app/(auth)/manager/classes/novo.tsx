@@ -7,19 +7,24 @@ import { StyleSheet, View, ScrollView, Alert, Pressable } from "react-native";
 import { Router, useRouter } from "expo-router";
 import { GestorClassProps } from "@/types/ManagerTypes";
 import DateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import { useClasses } from "@/context/ClassContext";
 
-let nextId = 16;
 const today = new Date();
 
 export default function NewClass() {
-  const defaultData: GestorClassCreateProps = {
-    id: (nextId++).toString(),
+  const {
+    createClass,
+  } = useClasses();
+
+  const defaultData: Omit<GestorClassCreateProps, "id"> = {
     name: "",
     description: "",
     prof: "",
     startingDate: new Date(),
     minuteLength: 0,
     vagas: 0,
+    sala: "",
+    status: "upcoming",
     inscritos: 0,
   }
   const [data, setData] = useState(defaultData);
@@ -48,8 +53,8 @@ export default function NewClass() {
           onChangeText={s => setData(data => ({ ...data, description: s }))}
         />
         <DateTimeInput startingDate={data.startingDate}
-        setStartingDate={date => setData(data => ({...data, startingDate: date}))}/>
-       <TextInput
+          setStartingDate={date => setData(data => ({ ...data, startingDate: date }))} />
+        <TextInput
           placeholder="Digite a duração..."
           label="Duração (minutos)"
           maxLength={3}
@@ -65,6 +70,13 @@ export default function NewClass() {
           onChangeText={s => setData(data => ({ ...data, prof: s }))}
         />
         <TextInput
+          placeholder="Digite o número/nome da sala..."
+          label="Sala"
+          maxLength={30}
+          value={data.sala}
+          onChangeText={s => setData(data => ({ ...data, sala: s }))}
+        />
+        <TextInput
           placeholder="Insira o número de vagas..."
           label="Número de Vagas"
           maxLength={3}
@@ -72,15 +84,15 @@ export default function NewClass() {
           value={isNaN(data.vagas) ? "" : data.vagas.toString()}
           onChangeText={s => setData(data => ({ ...data, vagas: numericInputHandler(s) }))}
         />
-        <Button style={stylesItem.button} size="large" onPress={() => dataConfirmationHandler(data, router)}>
-          <Text lightColor="#fff">Criar Aula</Text>
+        <Button style={stylesItem.button} size="large" onPress={() => dataConfirmationHandler(data, router, createClass)}>
+          <Text lightColor="#fff">Editar Aula</Text>
         </Button>
       </View>
     </PageContainer>
   );
 }
 
-function DateTimeInput({startingDate, setStartingDate}: DateTimeInputProps) {
+function DateTimeInput({ startingDate, setStartingDate }: DateTimeInputProps) {
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
   const [date, setDate] = useState("");
@@ -91,7 +103,7 @@ function DateTimeInput({startingDate, setStartingDate}: DateTimeInputProps) {
     setShow(true);
     setMode(mode);
   };
-  
+
   const onChange = (event: DateTimePickerEvent, selectedDate: Date | undefined) => {
     const currentDate = selectedDate;
     const dateString = currentDate?.toLocaleDateString("en-GB");
@@ -108,39 +120,40 @@ function DateTimeInput({startingDate, setStartingDate}: DateTimeInputProps) {
 
   return (
     <>
-            <View style={stylesItem.datetimeContainer}>
-          <Pressable
-            style={stylesItem.datetimeField}
-            onPress={() => showMode("date")}
-          >
-            <TextInput
-              label="Data e Hora"
-              placeholder="dd/mm/yyyy"
-              value={date}
-              readOnly={true}
-            />
-          </Pressable>
-          <Pressable
-            style={stylesItem.datetimeField}
-            onPress={() => showMode("time")}
-          >
-            <TextInput
-              value={time}
-              placeholder="hh:mm"
-              readOnly={true}
-            />
-          </Pressable>
-        </View>
-        {show && (
-          <DateTimePicker
-            testID="dateTimePicker"
-            value={startingDate}
-            mode={mode as AndroidMode}
-            is24Hour={true}
-            minimumDate={today}
-            maximumDate={new Date(today.getFullYear(), (today.getMonth() + 1) % 12, today.getDate())}
-            onChange={onChange} />)}
-            </>
+      <View style={stylesItem.datetimeContainer}>
+        <Pressable
+          style={stylesItem.datetimeField}
+          onPress={() => showMode("date")}
+        >
+          <TextInput
+            label="Data e Hora"
+            placeholder="dd/mm/yyyy"
+            value={date}
+            readOnly={true}
+          />
+        </Pressable>
+        <Pressable
+          style={stylesItem.datetimeField}
+          onPress={() => showMode("time")}
+        >
+          <TextInput
+            label=" "
+            value={time}
+            placeholder="hh:mm"
+            readOnly={true}
+          />
+        </Pressable>
+      </View>
+      {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          value={startingDate}
+          mode={mode as AndroidMode}
+          is24Hour={true}
+          minimumDate={today}
+          maximumDate={new Date(today.getFullYear(), (today.getMonth() + 1) % 12, today.getDate())}
+          onChange={onChange} />)}
+    </>
   )
 }
 
@@ -149,7 +162,7 @@ interface DateTimeInputProps {
   setStartingDate: (date: Date) => void;
 }
 
-function dataConfirmationHandler(data: GestorClassCreateProps, router: Router) {
+function dataConfirmationHandler(data: Omit<GestorClassCreateProps, "id">, router: Router, createClass: (classData: Omit<GestorClassProps, "id" | "inscritos">) => Promise<string | null>) {
   if (data.name.length > 50 || data.name.length < 3) {
     Alert.alert("Título inválido", "O título deve conter ao menos 3 caracteres e menos de 50.");
     return;
@@ -180,23 +193,18 @@ function dataConfirmationHandler(data: GestorClassCreateProps, router: Router) {
     return;
   }
 
+  if (data.sala.length < 1 || data.sala.length > 30) {
+    Alert.alert("Nome de sala inválido", "O nome da sala tem de ter no mínimo 1 caracteres e no máximo 30.")
+    return;
+  }
+
   if (data.vagas <= 0 || data.vagas >= 1000) {
     Alert.alert("Número de vagas inválido", "O número de vagas deve estar entre 1 e 999.")
     return;
   }
 
-  router.push({
-    pathname: `/(auth)/manager/classes`, params: {
-      id: data.id,
-      name: data.name,
-      description: data.description,
-      prof: data.prof,
-      startingDate: data.startingDate.toString(),
-      minuteLength: data.minuteLength,
-      vagas: data.vagas,
-      inscritos: data.inscritos,
-    }
-  })
+  createClass(data);
+  router.back();
 }
 
 interface GestorClassCreateProps extends GestorClassProps {
