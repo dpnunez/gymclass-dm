@@ -13,7 +13,7 @@ import { useUser } from "@/context/AuthContext";
 import { useClasses } from "@/context/ClassContext";
 
 export default function UserHome() {
-  const { user } = useUser();
+  const { user, userProfile } = useUser();
   const {
     loading,
     maxClassesReached,
@@ -27,7 +27,7 @@ export default function UserHome() {
   const router = useRouter();
   const selectedClasses = getClassesForCurrentDate();
 
-  const userName = user?.displayName?.split(" ")[0] || "Usuário";
+  const userName = userProfile?.displayName.split(" ")[0] || "Usuário";
 
   if (loading) {
     return (

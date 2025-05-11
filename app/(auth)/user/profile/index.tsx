@@ -7,14 +7,9 @@ import { ComponentProps } from "react";
 import { useRouter } from "expo-router";
 import { useUser } from "@/context/AuthContext";
 
-const MOCK_USER = {
-  name: "Edson Arantes do Nascimento",
-  email: "edson.arantes@gmail.com",
-};
-
 export default function UserProfile() {
   const router = useRouter();
-  const { logout } = useUser();
+  const { logout, userProfile } = useUser();
 
   const actions = [
     {
@@ -50,16 +45,16 @@ export default function UserProfile() {
     <PageContainer as={View}>
       <Image
         source={{
-          uri: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Pele_con_brasil_%28cropped%29.jpg",
+          uri: userProfile?.profilePicture,
           width: 156,
           height: 156,
         }}
         style={styles.userAvatar}
       />
       <Text style={styles.userInfo} type="subtitle">
-        {MOCK_USER.name}
+        {userProfile?.displayName}
       </Text>
-      <Text style={styles.userInfo}>{MOCK_USER.email}</Text>
+      <Text style={styles.userInfo}>{userProfile?.mail}</Text>
 
       <FlatList
         data={actions}

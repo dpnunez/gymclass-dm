@@ -21,7 +21,7 @@ const schema = z
     name: z.string().min(1, "O nome é obrigatório"),
     email: z.string().email("Insira um email válido"),
     birthDate: z.string().min(1, "A data de nascimento é obrigatória"),
-    phone: z.string().min(10, "Insira um telefone válido"),
+    phone: z.string().min(9, "Insira um telefone válido"),
     password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
     confirmPassword: z.string(),
   })
@@ -46,7 +46,7 @@ export default function RegisterPage() {
 
   const handleRegister = async () => {
     const auth = getAuth(firebaseApp);
-    const { email, password } = form.getValues();
+    const { email, password, name, birthDate, phone } = form.getValues();
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -59,7 +59,12 @@ export default function RegisterPage() {
       await addDoc(collection(firebaseDb, "userRole"), {
         userId: user.uid,
         mail: email,
+        displayName: name,
+        birthDate: birthDate,
+        phone: phone,
         role: "consumer",
+        status: "inactive",
+        profilePicture: "https://i.imgur.com/BBMkp9s.png", // default
       })
 
       Alert.alert(
