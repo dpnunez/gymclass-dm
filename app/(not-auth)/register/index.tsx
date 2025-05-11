@@ -65,6 +65,7 @@ export default function RegisterPage() {
         role: "consumer",
         status: "inactive",
         profilePicture: "https://i.imgur.com/BBMkp9s.png", // default
+        registration: new Date().toLocaleDateString("en-GB"),
       })
 
       Alert.alert(

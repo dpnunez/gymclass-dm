@@ -24,7 +24,7 @@ export default function Login() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormInputs>();
-  const { getUserRole, redirectToHome} = useUser()
+  const { getUserRole, redirectToHome, getUserProfile } = useUser()
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
@@ -41,10 +41,18 @@ export default function Login() {
         );
         return;
       };
+      const userProfile = await getUserProfile(res.user.uid!);
+      if (userProfile?.status !== "active") {
+        Alert.alert(
+          "Usuário não ativo",
+          "Por favor, peça a um gestor para que ative sua conta"
+        );
+        return;
+      };
 
       const role = await getUserRole(res.user.uid);
 
-      redirectToHome(role)
+      redirectToHome(role!)
 
       Alert.alert("Login realizado com sucesso!");
     } catch (error: any) {
