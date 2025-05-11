@@ -28,12 +28,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (!firebaseUser?.emailVerified) return;
-      await getUserRole(
-        firebaseUser.uid
-      )
+      if (firebaseUser?.emailVerified) {
+        await getUserRole(firebaseUser.uid);
+        setUser(firebaseUser);
+      } else {
+        setUser(null);
+        setUserRole(null);
+      }
 
-      setUser(firebaseUser);
       setLoading(false);
     });
 
@@ -44,6 +46,10 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const getUserRole = async (userId: string) => {
     const queryUserRole = query(userColletionRef, where("userId", "==", userId));
     const userRoleRes = await getDocs(queryUserRole);
+    if (userRoleRes.empty) {
+      setUserRole(null);
+      return null;
+    }
     const userRole = userRoleRes.docs[0].data().role;
     setUserRole(userRole as UserRole);
 
