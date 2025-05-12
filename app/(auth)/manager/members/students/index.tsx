@@ -6,53 +6,52 @@ import {
   Pressable,
   StyleSheet,
   View,
+  TextInput,
 } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "@expo/vector-icons/Feather";
 import { useRouter } from "expo-router";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { firebaseDb } from "@/firebase.config";
 
-const students = [
-  {
-    id: "#12458",
-    name: "João Silva",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    paid: true,
-  },
-  {
-    id: "#12459",
-    name: "Tadeu Abreu",
-    avatar: "https://randomuser.me/api/portraits/men/2.jpg",
-    paid: false,
-  },
-  {
-    id: "#12460",
-    name: "Eduardo Domingos",
-    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-    paid: true,
-  },
-  {
-    id: "#12461",
-    name: "Samuel Mendona",
-    avatar: "https://randomuser.me/api/portraits/men/4.jpg",
-    paid: false,
-  },
-  {
-    id: "#12462",
-    name: "Thiago Tranquilo",
-    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
-    paid: true,
-  },
-  {
-    id: "#12463",
-    name: "Julia Silva",
-    avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-    paid: false,
-  },
-];
+interface Student {
+  id: string;
+  name: string;
+  avatar: string;
+  paid: boolean;
+}
 
 export default function StudentListScreen() {
+  const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    const loadStudents = async () => {
+      const q = query(collection(firebaseDb, "userRole"), where("role", "==", "consumer"));
+      const snapshot = await getDocs(q);
+
+      const loaded = snapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().displayName || "Sem nome",
+        avatar: doc.data().profilePicture || "https://via.placeholder.com/48",
+        paid: doc.data().paid ?? false, // ou adapte conforme seu campo real
+      }));
+
+      setStudents(loaded);
+    };
+
+    loadStudents();
+  }, []);
+
+  const filtered = students.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <PageContainer as={View} style={styles.container}>
@@ -60,11 +59,13 @@ export default function StudentListScreen() {
       <View style={styles.summaryContainer}>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>Total de Membros</Text>
-          <Text style={styles.summaryValue}>248</Text>
+          <Text style={styles.summaryValue}>{students.length}</Text>
         </View>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>Pagamentos Atrasados</Text>
-          <Text style={[styles.summaryValue, { color: "#ef4444" }]}>12</Text>
+          <Text style={[styles.summaryValue, { color: "#ef4444" }]}>
+            {students.filter(s => !s.paid).length}
+          </Text>
         </View>
       </View>
 
@@ -72,23 +73,30 @@ export default function StudentListScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Membros</Text>
         <View style={styles.iconGroup}>
-          <Icon name="filter" size={20} color="#444" />
           <Icon name="search" size={20} color="#444" />
         </View>
       </View>
 
+      <TextInput
+        placeholder="Buscar aluno..."
+        value={search}
+        onChangeText={setSearch}
+        style={{
+          backgroundColor: "#fff",
+          padding: 10,
+          borderRadius: 10,
+          marginBottom: 12,
+        }}
+      />
+
       {/* Lista */}
       <FlatList
-        data={students}
+        data={filtered}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingBottom: 40 }}
         renderItem={({ item }) => (
           <Pressable
-            onPress={() =>
-              router.push(
-                `/(auth)/manager/members/students/profile`
-              )
-            }
+            onPress={() => router.push(`/(auth)/manager/members/students/profile?id=${item.id}`)}
             style={styles.card}
           >
             <Image source={{ uri: item.avatar }} style={styles.avatar} />
