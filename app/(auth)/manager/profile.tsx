@@ -6,13 +6,13 @@ import Icon from "@expo/vector-icons/AntDesign";
 import { ComponentProps } from "react";
 import { useUser } from "@/context/AuthContext";
 
-const MOCK_USER = {
-  name: "Ayrton Senna da Silva",
-  email: "ayrton.senna@gmail.com",
-};
-
 export default function ManagerProfile() {
-  const { logout } = useUser();
+  const { logout, userProfile } = useUser();
+
+  // ======= DADOS REAIS DO USUÁRIO (sem MOCK) =======
+  const displayName = userProfile?.displayName || "Gestor";
+  const email = userProfile?.mail || "sem-email@exemplo.com";
+  const avatar = userProfile?.profilePicture || "https://i.pravatar.cc/300";
 
   const actions = [
     {
@@ -28,19 +28,17 @@ export default function ManagerProfile() {
 
   return (
     <PageContainer as={View}>
+      {/* ======= AVATAR DO USUÁRIO ======= */}
       <Image
-        source={{
-          uri: "https://upload.wikimedia.org/wikipedia/commons/9/9f/Ayrton_Senna_Pesawat_RC_Cropped.jpg",
-          width: 156,
-          height: 156,
-        }}
+        source={{ uri: avatar, width: 156, height: 156 }}
         style={styles.userAvatar}
       />
-      <Text style={styles.userInfo} type="subtitle">
-        {MOCK_USER.name}
-      </Text>
-      <Text style={styles.userInfo}>{MOCK_USER.email}</Text>
 
+      {/* ======= NOME E EMAIL ======= */}
+      <Text style={styles.userInfo} type="subtitle">{displayName}</Text>
+      <Text style={styles.userInfo}>{email}</Text>
+
+      {/* ======= AÇÕES DISPONÍVEIS ======= */}
       <FlatList
         data={actions}
         keyExtractor={(item) => item.title}
@@ -113,5 +111,5 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     textAlign: "center",
-  },
+  },
 });
