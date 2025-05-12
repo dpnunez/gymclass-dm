@@ -1,100 +1,81 @@
+import { useEffect, useState } from "react";
+import { View, TextInput, Alert, StyleSheet, Image } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
+import { Snackbar, IconButton, Menu } from "react-native-paper";
+import Icon from "@expo/vector-icons/AntDesign";
+import { useRouter } from "expo-router";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { firebaseDb } from "@/firebase.config";
+
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
 import { Button } from "@/components/ThemedButton";
 import { GestorStatus, GestorItemProps } from "@/types/AdminTypes";
-import { Image, StyleSheet, View, Alert, TextInput } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
-import { useState } from "react";
-import { Menu, IconButton, Snackbar } from "react-native-paper";
-import Icon from "@expo/vector-icons/AntDesign";
-import { useRouter, useLocalSearchParams } from "expo-router";
-
-const MOCK_DATA: GestorItemProps[] = [
-    {
-        id: "1",
-        name: "Pedro Rodrigues",
-        email: "pedror98@gmail.com",
-        birthdate: "01/01/1988",
-        registration: "Jan 2019",
-        status: "ativo",
-    },
-    {
-        id: "2",
-        name: "Renato Goes",
-        email: "renato.goes@gmail.com",
-        birthdate: "22/04/1996",
-        registration: "Mar 2025",
-        status: "convidado",
-    },
-];
 
 export default function AdminManagersPage() {
-    const params = useLocalSearchParams();
-    if (params.id) {
-        const newGestor: GestorItemProps = {
-            id: params.id.toString(),
-            name: params.name.toString(),
-            email: params.email.toString(),
-            birthdate: params.birthdate.toString(),
-            registration: params.registration.toString(),
-            status: params.status.toString() as GestorStatus,
-        }
-        MOCK_DATA.push(newGestor);
-    }
-
-    const [data, setData] = useState(MOCK_DATA);
+    const router = useRouter();
+    const [data, setData] = useState<GestorItemProps[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const filteredData = data.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filteredData = data.filter(item =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-    const router = useRouter();
+    const loadData = async () => {
+        try {
+            const snapshot = await getDocs(collection(firebaseDb, "administradores"));
+            const gestores: GestorItemProps[] = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as GestorItemProps[];
+            setData(gestores);
+        } catch (err) {
+            setSnackbarMessage("Erro ao carregar gestores.");
+            setSnackbarVisible(true);
+        }
+    };
+
+    useEffect(() => {
+        loadData();
+    }, []);
 
     return (
         <PageContainer as={View}>
             <View style={{ alignSelf: "flex-end" }}>
-                <Button size="small" style={stylesItem.button} onPress={() => router.push(`/(auth)/admin/gestores/novo`)}>
+                <Button size="small" style={styles.button} onPress={() => router.push("/(auth)/admin/gestores/novo")}>
                     <Text lightColor="#fff"><Icon name="plus" size={12} color="#fff" /> Novo Gestor</Text>
                 </Button>
             </View>
-
 
             <TextInput
                 placeholder="Pesquisar por nome..."
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                style={stylesItem.searchInput} />
+                style={styles.searchInput}
+            />
+
             <FlatList
                 data={filteredData}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <GestorItem
-                        id={item.id}
-                        name={item.name}
-                        email={item.email}
-                        birthdate={item.birthdate}
-                        registration={item.registration}
-                        status={item.status}
-                        setData={setData}
-                        showSnackbar={(message: string) => {
-                            setSnackbarMessage(message);
-                            setSnackbarVisible(true);
-                        }}
-                    />
+                    <GestorItem {...item} setData={setData} showSnackbar={(message) => {
+                        setSnackbarMessage(message);
+                        setSnackbarVisible(true);
+                    }} />
                 )}
                 contentContainerStyle={{ gap: 32 }}
-                showsVerticalScrollIndicator={false}
-                showsHorizontalScrollIndicator={false}
                 style={{ width: "100%" }}
                 horizontal={false}
+                showsVerticalScrollIndicator={false}
             />
 
             <Snackbar
                 visible={snackbarVisible}
                 onDismiss={() => setSnackbarVisible(false)}
                 duration={3000}
-                style={stylesItem.snackbar}
+                style={styles.snackbar}
             >
                 {snackbarMessage}
             </Snackbar>
@@ -102,20 +83,10 @@ export default function AdminManagersPage() {
     );
 }
 
-interface GestorItemFullProps extends GestorItemProps {
+function GestorItem({ id, name, email, birthdate, registration, status, setData, showSnackbar }: GestorItemProps & {
     setData: React.Dispatch<React.SetStateAction<GestorItemProps[]>>;
     showSnackbar: (message: string) => void;
-}
-
-interface MenuGestorProps {
-    id: string;
-    name: string;
-    setData: React.Dispatch<React.SetStateAction<GestorItemProps[]>>;
-    showSnackbar: (message: string) => void;
-}
-
-
-function GestorItem({ name, email, birthdate, registration, status, id, setData, showSnackbar }: GestorItemFullProps) {
+}) {
     const colors = {
         ativo: "#D1FAE5",
         convidado: "#FFC067",
@@ -124,33 +95,26 @@ function GestorItem({ name, email, birthdate, registration, status, id, setData,
         ativo: "#047857",
         convidado: "#C77400",
     };
-    const statusLabel = {
-        ativo: "Ativo",
-        convidado: "Convidado",
-    } as const;
 
     return (
-        <View style={stylesItem.container}>
-            <GestorMenu name={name} id={id} setData={setData} showSnackbar={showSnackbar} />
-            <View style={stylesItem.container2}>
+        <View style={styles.container}>
+            <GestorMenu id={id} name={name} setData={setData} showSnackbar={showSnackbar} />
+            <View style={styles.container2}>
                 <Image
-                    style={stylesItem.image}
-                    source={{
-                        uri: "https://reactnative.dev/img/tiny_logo.png",
-                    }}
+                    style={styles.image}
+                    source={{ uri: "https://reactnative.dev/img/tiny_logo.png" }}
                 />
                 <View style={{ gap: 5, padding: 10 }}>
                     <Text type="subtitle">{name}</Text>
                     <Text>{email}</Text>
                     <Text>{`Nascido(a): ${birthdate}`}</Text>
-
                 </View>
             </View>
-            <View style={stylesItem.bottomSection}>
-                <View style={{ backgroundColor: colors[status], ...stylesItem.detailSection }}>
-                    <Text lightColor={colors2[status]}>{statusLabel[status]}</Text>
+            <View style={styles.bottomSection}>
+                <View style={[styles.detailSection, { backgroundColor: colors[status] }]}>
+                    <Text lightColor={colors2[status]}>{status}</Text>
                 </View>
-                <View style={stylesItem.detailSection}>
+                <View style={styles.detailSection}>
                     <Text>{`Registo: ${registration}`}</Text>
                 </View>
             </View>
@@ -158,34 +122,41 @@ function GestorItem({ name, email, birthdate, registration, status, id, setData,
     );
 }
 
-type ActionType = "remover";
-
-function GestorMenu({ name, id, setData, showSnackbar }: MenuGestorProps) {
+function GestorMenu({ id, name, setData, showSnackbar }: {
+    id: string;
+    name: string;
+    setData: React.Dispatch<React.SetStateAction<GestorItemProps[]>>;
+    showSnackbar: (message: string) => void;
+}) {
     const [visible, setVisible] = useState(false);
 
-    function confirmAction(action: ActionType) {
+    const removeGestor = async () => {
+        try {
+            await deleteDoc(doc(firebaseDb, "administradores", id));
+            setData(prev => prev.filter(item => item.id !== id));
+            showSnackbar(`Gestor ${name} removido com sucesso.`);
+        } catch (error) {
+            showSnackbar(`Erro ao remover o gestor ${name}.`);
+        }
+    };
+
+    const confirmAction = () => {
         Alert.alert(
-            `Confirmar Remover Gestor`,
-            `Tens certeza de que desejas remover o gestor ${name}?\n\nEsta ação não poderá ser desfeita.`,
+            "Confirmar Remoção",
+            `Deseja realmente remover o gestor ${name}?`,
             [
+                { text: "Cancelar", style: "cancel" },
                 {
-                    text: 'Cancelar',
-                    style: 'destructive',
-                },
-                {
-                    text: 'Confirmar',
-                    onPress: () => {
-                        setData(data => data.filter(gestor => gestor.id !== id));
-                        showSnackbar(`Gestor ${name} removido com sucesso.`);
-                    },
-                },
-            ],
-            { cancelable: true }
+                    text: "Confirmar",
+                    onPress: removeGestor,
+                    style: "destructive"
+                }
+            ]
         );
     };
 
     return (
-        <View style={stylesItem.more}>
+        <View style={styles.more}>
             <Menu
                 visible={visible}
                 onDismiss={() => setVisible(false)}
@@ -198,18 +169,18 @@ function GestorMenu({ name, id, setData, showSnackbar }: MenuGestorProps) {
                     />
                 }
             >
-                <Menu.Item onPress={() => { confirmAction("remover"); setVisible(false); }} title="Remover Gestor"></Menu.Item>
+                <Menu.Item onPress={() => { confirmAction(); setVisible(false); }} title="Remover Gestor" />
             </Menu>
         </View>
     );
 }
 
-const stylesItem = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         borderRadius: 10,
         padding: 8,
-        position: "relative",
+        backgroundColor: "#fff",
+        elevation: 2,
     },
     container2: {
         flexDirection: "row",
@@ -258,4 +229,3 @@ const stylesItem = StyleSheet.create({
         alignSelf: "center",
     },
 });
-

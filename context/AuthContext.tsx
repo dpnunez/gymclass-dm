@@ -17,6 +17,7 @@ interface UserProfile {
   status: string;
   profilePicture: string;
   registration: string;
+  nextPayment: string;
 }
 
 interface UserContextProps {
@@ -78,6 +79,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       status: data.status,
       profilePicture: data.profilePicture,
       registration: data.registration,
+      nextPayment: data.nextPayment,
     };
   };
 
