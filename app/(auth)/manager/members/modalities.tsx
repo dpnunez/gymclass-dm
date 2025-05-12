@@ -2,58 +2,62 @@ import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
 import { FlatList, Image, StyleSheet, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import { collection, getDocs } from "firebase/firestore";
+import { firebaseDb } from "@/firebase.config";
+import { useEffect, useState } from "react";
 
-const modalities = [
-  {
-    name: "Yoga Matinal",
-    date: "15 de Janeiro de 2025",
-    duration: "45 min",
-    professor: "Prof Marcos",
-    image: "https://source.unsplash.com/featured/?yoga",
-  },
-  {
-    name: "Pilates Básico",
-    date: "12 de Janeiro de 2025",
-    duration: "30 min",
-    professor: "Prof Mariana",
-    image: "https://source.unsplash.com/featured/?pilates",
-  },
-  {
-    name: "Meditação",
-    date: "10 de Janeiro de 2025",
-    duration: "20 min",
-    professor: "Prof Jurandir",
-    image: "https://source.unsplash.com/featured/?meditation",
-  },
-  {
-    name: "Treino HIIT",
-    date: "8 de Janeiro de 2025",
-    duration: "35 min",
-    professor: "Prof Samuel Mendonça",
-    image: "https://source.unsplash.com/featured/?hiit",
-  },
-];
+interface Modality {
+  name: string;
+  date: string;
+  duration: string;
+  professor: string;
+  image: string;
+}
 
 export default function ModalitiesScreen() {
+  const [modalities, setModalities] = useState<Modality[]>([]);
+
+  useEffect(() => {
+    const fetchModalities = async () => {
+      // ======= BUSCA DOS DADOS REAIS DO FIRESTORE =======
+      const snapshot = await getDocs(collection(firebaseDb, "classes"));
+
+      const result = snapshot.docs.map(doc => {
+        const data = doc.data();
+
+        return {
+          name: data.name || "Sem nome",
+          date: data.date || "Sem data",
+          duration: data.duration || "Indefinido",
+          professor: data.teacherName || "Desconhecido",
+
+          // ======= IMAGEM COM FALLBACK =======
+          image: data.imageUrl || `https://source.unsplash.com/featured/?${data.name || "fitness"}`,
+        };
+      });
+
+      setModalities(result);
+    };
+
+    fetchModalities();
+  }, []);
+
   return (
     <PageContainer as={View} style={styles.container}>
-      {/* Card resumo */}
       <View style={styles.summaryCard}>
         <Text style={styles.summaryLabel}>Modalidades em Aberto</Text>
         <Text style={styles.summaryCount}>{modalities.length}</Text>
       </View>
 
-      {/* Lista */}
       <FlatList
         data={modalities}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item) => item.name + item.date}
         contentContainerStyle={{ paddingBottom: 40 }}
+
+        // ======= RENDERIZAÇÃO DE CADA MODALIDADE =======
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Image
-              source={{ uri: item.image }}
-              style={styles.image}
-            />
+            <Image source={{ uri: item.image }} style={styles.image} />
             <View style={styles.cardContent}>
               <Text style={styles.title}>{item.name}</Text>
               <Text style={styles.date}>{item.date}</Text>
@@ -74,9 +78,9 @@ export default function ModalitiesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16, // px-4
-    paddingTop: 24, // pt-6
-    backgroundColor: "#f3f4f6", // bg-gray-100
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    backgroundColor: "#f3f4f6",
   },
   summaryCard: {
     backgroundColor: "#ffffff",
@@ -88,7 +92,7 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 14,
-    color: "#6b7280", // text-gray-500
+    color: "#6b7280",
   },
   summaryCount: {
     fontSize: 20,
@@ -135,6 +139,6 @@ const styles = StyleSheet.create({
   metaText: {
     fontSize: 12,
     color: "#6b7280",
-    marginRight: 8,
-  },
+    marginRight: 8,
+  },
 });
