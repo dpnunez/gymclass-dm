@@ -15,5 +15,5 @@ export interface GestorPagProps {
   id: string;
   name: string;
   vencimento: Date;
+  avatar: string; // <- Adicione esta linha se não existir
 }
-
