@@ -1,21 +1,88 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
 import { useLocalSearchParams } from "expo-router";
-import { Image, View, StyleSheet } from "react-native";
+import { Image, View, StyleSheet, Alert, Pressable } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  addDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { firebaseDb } from "@/firebase.config";
+
+interface ClassItem {
+  name: string;
+  date: string;
+  shift: string;
+  status?: string;
+}
 
 export default function TeacherProfileScreen() {
   const { id } = useLocalSearchParams();
+  const [loading, setLoading] = useState(true);
 
-  const teacher = {
-    id: id || "#12455",
-    name: "Joana Silva",
-    email: "joao@gmail.com",
-    avatar: "https://randomuser.me/api/portraits/women/1.jpg",
-    classes: [
-      { name: "Yoga Flow", date: "12/12/2025", shift: "Turno B" },
-      { name: "Functional", date: "10/12/2025", shift: "Turno A" },
-    ],
-  };
+  const [teacher, setTeacher] = useState({
+    id: "",
+    name: "",
+    email: "",
+    avatar: "",
+  });
+
+  const [classes, setClasses] = useState<ClassItem[]>([]);
+
+  useEffect(() => {
+    const fetchTeacherAndClasses = async () => {
+      if (!id || typeof id !== "string") {
+        Alert.alert("Erro", "ID do professor inválido.");
+        return;
+      }
+
+      try {
+        const userRef = doc(firebaseDb, "userRole", id);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          Alert.alert("Erro", "Professor não encontrado.");
+          return;
+        }
+
+        const userData = userSnap.data();
+
+        setTeacher({
+          id: userSnap.id,
+          name: userData.displayName || "Sem nome",
+          email: userData.mail || "Sem email",
+          avatar: userData.profilePicture || "https://via.placeholder.com/96",
+        });
+
+        const classesRef = collection(firebaseDb, "classes");
+        const q = query(classesRef, where("teacherId", "==", id));
+        const snapshot = await getDocs(q);
+
+        const fetchedClasses = snapshot.docs.map((doc) => ({
+          name: doc.data().name,
+          date: doc.data().date,
+          shift: doc.data().shift,
+          status: doc.data().status || "ativa",
+        }));
+
+        setClasses(fetchedClasses);
+      } catch (err: any) {
+        Alert.alert("Erro", err.message || "Erro ao buscar dados.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeacherAndClasses();
+  }, [id]);
+
+  if (loading) return <Text style={{ padding: 24 }}>Carregando...</Text>;
 
   return (
     <PageContainer as={View} style={styles.container}>
@@ -29,18 +96,137 @@ export default function TeacherProfileScreen() {
         <Text style={styles.id}>{`ID: ${teacher.id}`}</Text>
 
         <View style={styles.classList}>
-          {teacher.classes.map((item) => (
-            <View key={item.name} style={styles.classItem}>
-              <View>
-                <Text style={styles.className}>{item.name}</Text>
-                <Text style={styles.classDate}>{item.date}</Text>
-              </View>
-              <View style={styles.shiftBadge}>
-                <Text style={styles.shiftText}>{item.shift}</Text>
-              </View>
-            </View>
-          ))}
+          {classes.length > 0 ? (
+            classes
+              .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+              .map((item) => (
+                <View key={item.name + item.date} style={styles.classItem}>
+                  <View>
+                    <Text style={styles.className}>{item.name}</Text>
+                    <Text style={styles.classDate}>{item.date}</Text>
+                    {item.status && (
+                      <Text
+                        style={[
+                          styles.classStatus,
+                          {
+                            color:
+                              item.status === "finalizada"
+                                ? "#10b981"
+                                : item.status === "cancelada"
+                                ? "#ef4444"
+                                : "#6b7280",
+                          },
+                        ]}
+                      >
+                        Status: {item.status}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.shiftBadge}>
+                    <Text style={styles.shiftText}>{item.shift}</Text>
+                  </View>
+                </View>
+              ))
+          ) : (
+            <Text style={{ fontSize: 14, color: "#6b7280", textAlign: "center", marginTop: 16 }}>
+              Nenhuma aula atribuída a este professor.
+            </Text>
+          )}
         </View>
+
+        {/* Botão para adicionar aulas */}
+        <Pressable
+          style={styles.button}
+          onPress={async () => {
+            if (!id || typeof id !== "string") return;
+
+            try {
+              const newClass = {
+                name: "Nova Aula",
+                date: new Date().toLocaleDateString("pt-PT"),
+                shift: "Turno A",
+                status: "ativa",
+                teacherId: id,
+              };
+
+              await addDoc(collection(firebaseDb, "classes"), newClass);
+              setClasses((prev) => [...prev, newClass]);
+              Alert.alert("Aula adicionada com sucesso!");
+            } catch (err: any) {
+              Alert.alert("Erro", err.message || "Erro ao adicionar aula.");
+            }
+          }}
+        >
+          <Text style={styles.buttonText}>Adicionar Aula</Text>
+        </Pressable>
+
+        {/* Botão para editar aulas */}
+        <Pressable
+          style={[styles.button, { backgroundColor: "#10b981" }]}
+          onPress={async () => {
+            if (!id || typeof id !== "string") return;
+
+            const q = query(collection(firebaseDb, "classes"), where("teacherId", "==", id));
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+              Alert.alert("Este professor ainda não possui aulas.");
+              return;
+            }
+
+            const aulaDocs = snapshot.docs;
+
+            const nomes = aulaDocs.map((doc, i) => `${i + 1}. ${doc.data().name}`).join("\n");
+
+            Alert.prompt(
+              "Editar Aula",
+              `Digite o número da aula para editar status:\n\n${nomes}`,
+              async (input) => {
+                const index = Number(input) - 1;
+                if (isNaN(index) || index < 0 || index >= aulaDocs.length) {
+                  Alert.alert("Índice inválido.");
+                  return;
+                }
+
+                const aulaDoc = aulaDocs[index];
+                const aulaId = aulaDoc.id;
+                const aulaData = aulaDoc.data();
+
+                Alert.alert(
+                  "Novo status",
+                  `Escolha o novo status para "${aulaData.name}"`,
+                  [
+                    {
+                      text: "Finalizar",
+                      onPress: async () => {
+                        await updateDoc(doc(firebaseDb, "classes", aulaId), { status: "finalizada" });
+                        setClasses((prev) =>
+                          prev.map((a) =>
+                            a.name === aulaData.name ? { ...a, status: "finalizada" } : a
+                          )
+                        );
+                      },
+                    },
+                    {
+                      text: "Cancelar",
+                      onPress: async () => {
+                        await updateDoc(doc(firebaseDb, "classes", aulaId), { status: "cancelada" });
+                        setClasses((prev) =>
+                          prev.map((a) =>
+                            a.name === aulaData.name ? { ...a, status: "cancelada" } : a
+                          )
+                        );
+                      },
+                    },
+                    { text: "Fechar", style: "cancel" },
+                  ]
+                );
+              }
+            );
+          }}
+        >
+          <Text style={styles.buttonText}>Editar Aulas</Text>
+        </Pressable>
       </View>
     </PageContainer>
   );
@@ -49,9 +235,9 @@ export default function TeacherProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24, // px-6
-    paddingTop: 24, // pt-6
-    backgroundColor: "#f3f4f6", // bg-gray-100
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    backgroundColor: "#f3f4f6",
   },
   card: {
     backgroundColor: "#ffffff",
@@ -65,14 +251,14 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   title: {
-    fontSize: 18, // text-lg
-    fontWeight: "600", // font-semibold
-    marginBottom: 16, // mb-4
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 16,
   },
   avatar: {
-    width: 96, // w-24
-    height: 96, // h-24
-    borderRadius: 48, // rounded-full
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     marginBottom: 8,
   },
   name: {
@@ -80,17 +266,17 @@ const styles = StyleSheet.create({
   },
   email: {
     fontSize: 14,
-    color: "#6b7280", // text-gray-500
+    color: "#6b7280",
   },
   id: {
     fontSize: 12,
-    color: "#9ca3af", // text-gray-400
+    color: "#9ca3af",
     marginBottom: 16,
   },
   classList: {
     width: "100%",
     marginTop: 8,
-    gap: 16, // space-y-4
+    gap: 16,
   },
   classItem: {
     flexDirection: "row",
@@ -102,17 +288,34 @@ const styles = StyleSheet.create({
   },
   classDate: {
     fontSize: 12,
-    color: "#6b7280", // text-gray-500
+    color: "#6b7280",
+  },
+  classStatus: {
+    fontSize: 12,
+    fontWeight: "600",
+    marginTop: 4,
   },
   shiftBadge: {
-    backgroundColor: "#d1fae5", // bg-green-100
+    backgroundColor: "#d1fae5",
     paddingVertical: 4,
     paddingHorizontal: 12,
-    borderRadius: 9999, // rounded-full
+    borderRadius: 9999,
   },
   shiftText: {
-    color: "#059669", // text-green-600
+    color: "#059669",
     fontWeight: "600",
     fontSize: 12,
+  },
+  button: {
+    backgroundColor: "#2563eb",
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 16,
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontWeight: "600",
+    textAlign: "center",
   },
 });
