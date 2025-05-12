@@ -1,9 +1,11 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
-import { Pressable, StyleSheet, View } from "react-native";
-import { useState } from "react";
-import { useRouter } from "expo-router";
+import { Pressable, StyleSheet, View, Alert } from "react-native";
+import { useEffect, useState } from "react";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { AntDesign } from "@expo/vector-icons";
+import { doc, updateDoc } from "firebase/firestore";
+import { firebaseDb } from "@/firebase.config";
 
 const plans = [
   { name: "Plano Básico", price: "€20" },
@@ -12,10 +14,31 @@ const plans = [
 ];
 
 export default function SelectPlanScreen() {
-  const [selected, setSelected] = useState("Plano Premium");
   const router = useRouter();
+  const { id } = useLocalSearchParams(); // ID do aluno
+  const [selected, setSelected] = useState("Plano Premium");
 
   const handleSelect = (plan: string) => setSelected(plan);
+
+  const handleConfirm = async () => {
+    if (!id || typeof id !== "string") {
+      Alert.alert("Erro", "ID do aluno não encontrado.");
+      return;
+    }
+
+    try {
+      const ref = doc(firebaseDb, "userRole", id);
+      await updateDoc(ref, {
+        planName: selected,
+      });
+
+      Alert.alert("Plano atualizado com sucesso!");
+      router.back(); // retorna para tela anterior
+
+    } catch (err: any) {
+      Alert.alert("Erro", err.message || "Não foi possível atualizar o plano.");
+    }
+  };
 
   return (
     <PageContainer as={View} style={styles.container}>
@@ -57,9 +80,7 @@ export default function SelectPlanScreen() {
       </View>
 
       <Pressable
-        onPress={() => {
-          console.log("Plano selecionado:", selected);
-        }}
+        onPress={handleConfirm}
         style={styles.confirmButton}
       >
         <Text style={styles.confirmText}>Confirmar Plano</Text>
@@ -71,9 +92,9 @@ export default function SelectPlanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24, // px-6
-    paddingTop: 24, // pt-6
-    backgroundColor: "#f3f4f6", // bg-gray-100
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    backgroundColor: "#f3f4f6",
     justifyContent: "space-between",
   },
   card: {
@@ -104,11 +125,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   planOptionSelected: {
-    borderColor: "#2563eb", // blue-600
-    backgroundColor: "#eff6ff", // blue-50
+    borderColor: "#2563eb",
+    backgroundColor: "#eff6ff",
   },
   planOptionDefault: {
-    borderColor: "#e5e7eb", // gray-200
+    borderColor: "#e5e7eb",
     backgroundColor: "#fff",
   },
   planRow: {
@@ -121,14 +142,14 @@ const styles = StyleSheet.create({
   },
   planPrice: {
     fontSize: 14,
-    color: "#6b7280", // gray-500
+    color: "#6b7280",
     marginTop: 2,
   },
   radioSelected: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: "#2563eb", // blue-600
+    backgroundColor: "#2563eb",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -137,7 +158,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#9ca3af", // gray-400
+    borderColor: "#9ca3af",
   },
   confirmButton: {
     backgroundColor: "#2563eb",
