@@ -1,22 +1,67 @@
 import { PageContainer } from "@/components/PageContainer";
 import { Text } from "@/components/ThemedText";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { View, Image, Pressable, StyleSheet } from "react-native";
+import { View, Image, Pressable, StyleSheet, Alert } from "react-native";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { firebaseDb } from "@/firebase.config";
 
 export default function AthleteProfileScreen() {
-  const { id } = useLocalSearchParams(); // Pegando o ID via rota dinâmica
+  const { id } = useLocalSearchParams(); // alunoId
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
-  const student = {
-    name: "John Cooper",
-    email: "john.cooper@example.com",
-    id: id || "#12458",
-    plan: "Plano Premium",
-    status: "Ativo",
-    price: "€60/mês",
-    nextPayment: "8 de março de 2025",
-    avatar: "https://randomuser.me/api/portraits/men/75.jpg",
-  };
+  const [student, setStudent] = useState({
+    name: "",
+    email: "",
+    avatar: "",
+    plan: "",
+    price: "",
+    status: "",
+    nextPayment: "",
+    id: "",
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!id || typeof id !== "string") {
+        Alert.alert("Erro", "ID do aluno inválido.");
+        return;
+      }
+
+      try {
+        const ref = doc(firebaseDb, "userRole", id);
+        const snapshot = await getDoc(ref);
+
+        if (!snapshot.exists()) {
+          Alert.alert("Erro", "Aluno não encontrado.");
+          return;
+        }
+
+        const data = snapshot.data();
+
+        setStudent({
+          name: data.displayName || "Sem nome",
+          email: data.mail || "-",
+          avatar: data.profilePicture || "https://via.placeholder.com/96",
+          plan: data.planName || "Plano não definido",
+          price: data.price || "€--",
+          status: data.status || "Indefinido",
+          nextPayment: data.nextPayment || "Sem data",
+          id: snapshot.id,
+        });
+
+      } catch (err: any) {
+        Alert.alert("Erro ao buscar aluno", err.message || "Erro desconhecido.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  if (loading) return <Text style={{ padding: 24 }}>Carregando...</Text>;
 
   return (
     <PageContainer as={View} style={styles.container}>
@@ -32,7 +77,7 @@ export default function AthleteProfileScreen() {
           {student.name}
         </Text>
         <Text style={styles.email}>{student.email}</Text>
-        <Text style={styles.id}>{student.id}</Text>
+        <Text style={styles.id}>{`ID: ${student.id}`}</Text>
 
         <View style={styles.planBox}>
           <View style={styles.planHeader}>
@@ -54,7 +99,10 @@ export default function AthleteProfileScreen() {
         <Pressable
           style={styles.button}
           onPress={() =>
-            router.push("/(auth)/manager/members/students/plano")
+            router.push({
+              pathname: "/(auth)/manager/members/students/plano",
+              params: { id: student.id },
+            })
           }
         >
           <Text style={styles.buttonText}>Modificar Subscrição</Text>
